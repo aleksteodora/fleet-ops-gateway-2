@@ -1,93 +1,192 @@
-# FleetOps Gateway 2
+# FleetOps Gateway
 
+FleetOps Gateway is a B2B SaaS platform for searching and managing vehicle information based on VIN (Vehicle Identification Number).
 
+The project is developed as an internship project and brings together backend and frontend development. The goal is to build a realistic business application while practicing clean code, project organization, API design, testing, Git workflow, code review, and other good software engineering practices.
 
-## Getting started
+## Features
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+The initial scope of the FleetOps platform includes:
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- Vehicle search by VIN
+- Integration with Free and Premium vehicle data providers
+- Fallback from the Free Provider to the Premium Provider
+- Timeout and error handling for external services
+- Search history
+- Search filtering and pagination
+- Dashboard with basic search statistics
+- Company-level data isolation
+- FleetOps administrator statistics
 
-## Add your files
+Additional frontend features and UI details will be defined during the project.
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## Project Components
 
+The FleetOps project consists of the following main components:
+
+- **FleetOps Backend** – REST API and business logic
+- **FleetOps Frontend** – Web application used by FleetOps users
+- **FleetOps Provider** – Service that simulates external Free and Premium vehicle data providers
+
+The exact responsibilities and architecture of these components will be defined together with the students during the project.
+
+## Architecture
+
+**TBD**
+
+The system architecture, service boundaries, communication patterns, and other architectural decisions will be discussed and defined during the project.
+
+## Tech Stack
+
+### Backend
+
+- Java 21
+- Spring Boot 4.1.0
+- Spring Data JPA / Hibernate
+- PostgreSQL
+- Maven
+- OpenAPI / Swagger
+- JUnit 5
+- Mockito
+
+### Frontend
+
+**TBD**
+
+Frontend technologies, libraries, project structure, and other implementation details will be documented by the frontend mentors.
+
+### Provider Service
+
+- Java 21
+- Spring Boot 3
+- REST API
+
+The Provider service simulates external vehicle data providers and exposes separate Free and Premium provider APIs.
+
+### Infrastructure
+
+**TBD**
+
+Infrastructure, containerization, CI/CD, and deployment details will be defined during the project.
+
+## Getting Started
+
+Setup and local development instructions will be added as the project evolves.
+
+### Prerequisites
+
+**TBD**
+
+The required tools and versions will be documented for each project component.
+
+### Running the Project
+
+**TBD**
+
+Instructions for running the backend, frontend, provider service, and supporting infrastructure will be added during the project.
+
+## Environment Variables
+
+Environment-specific configuration should be provided through environment variables or local configuration files.
+
+No secrets should be committed to the repository.
+
+The exact environment variables will be documented as the implementation evolves.
+
+## API
+
+The backend will expose a REST API for vehicle search, search history, dashboard functionality, and other FleetOps features.
+
+The API contract will be defined during implementation.
+
+Interactive API documentation will be provided through OpenAPI / Swagger.
+
+## Provider Integration
+
+FleetOps uses a separate Provider service to simulate external vehicle data providers.
+
+The Provider service exposes two provider APIs:
+
+```text
+Free Provider
+Premium Provider
 ```
-cd existing_repo
-git remote add origin https://gitlab.tiacgroup.com/p2/fleet-ops-gateway-2.git
-git branch -M main
-git push -uf origin main
+
+The expected business flow is:
+
+```text
+VIN Search
+    │
+    ▼
+Free Provider
+    │
+    ├── Active vehicle ──────► Return result
+    │
+    └── Unavailable / inactive
+              │
+              ▼
+       Premium Provider
+              │
+              ├── Success ───► Return result
+              │
+              └── Failure ───► Provider unavailable
 ```
 
-## Integrate with your tools
+The Provider service can simulate successful responses, inactive vehicles, timeouts, and service failures.
 
-* [Set up project integrations](https://gitlab.tiacgroup.com/p2/fleet-ops-gateway-2/-/settings/integrations)
+## Testing
 
-## Collaborate with your team
+Automated testing is an important part of the project.
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+The project should include appropriate tests for:
 
-## Test and Deploy
+- Business logic
+- REST controllers
+- Persistence
+- Provider integrations
+- Fallback scenarios
+- Error handling
+- Frontend components and services
 
-Use the built-in continuous integration in GitLab.
+The exact testing strategy will be defined as part of the project.
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+## Development Guidelines
 
-***
+The project places particular emphasis on good engineering practices:
 
-# Editing this README
+- Clean Code principles
+- Clear and consistent naming
+- Single Responsibility Principle
+- Separation of concerns
+- Appropriate project organization
+- DTOs and API contracts
+- Input validation
+- Consistent error handling
+- Automated testing
+- Avoiding unnecessary duplication
+- Appropriate use of design patterns
+- Maintainable and readable code
+- Meaningful Git commits
+- Code review
+- Documentation of important technical decisions
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+The goal is not only to make the application work, but also to understand why a particular solution is appropriate and how it can be maintained and extended.
 
-## Suggestions for a good README
+## Project Structure
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+The final project structure will be defined during implementation.
 
-## Name
-Choose a self-explaining name for your project.
+The structure should provide a clear separation of responsibilities and remain easy to understand and maintain.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+**TBD**
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+## Notes
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+- VIN stands for Vehicle Identification Number and is a unique identifier used to identify a vehicle.
+- Free and Premium providers are simulated services created for the internship project.
+- Provider failures are intentionally simulated so that students can implement and test fallback and error-handling scenarios.
+- The project is a learning environment, so architectural and implementation decisions should be discussed and justified rather than simply copied from a predefined solution.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## Documentation
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Additional project documentation, requirements, API contracts, and frontend-specific information will be added as the project evolves.
