@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: fleet-ops-provider
+
+server:
+  port: 8081
+  shutdown: graceful
+
+info:
+  app:
+    name: FleetOps Provider API
+    description: API for FleetOps Provider.
+    version: 1.0.0
