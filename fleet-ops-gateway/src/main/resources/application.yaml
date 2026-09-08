@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: fleet-ops-gateway
+
+server:
+  shutdown: graceful
+
+info:
+  app:
+    name: FleetOps Gateway API
+    description: API for FleetOps Gateway.
+    version: 1.0.0
