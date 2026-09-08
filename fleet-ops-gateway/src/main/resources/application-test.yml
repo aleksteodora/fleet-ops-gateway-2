@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fleetops_test
+    driver-class-name: org.postgresql.Driver
+    username: fleetops
+    password: fleetops
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
