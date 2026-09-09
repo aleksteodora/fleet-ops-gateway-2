@@ -2,20 +2,18 @@ package rs.tiacgroup.fleetopsgateway.searchhistory.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "search_history", indexes = {
+@Table(name = "search_histories", indexes = {
         @Index(name = "idx_search_history_user_id", columnList = "userId"),
         @Index(name = "idx_search_history_company_id", columnList = "companyId"),
         @Index(name = "idx_search_history_provider", columnList = "provider")
 })
 @Getter
-@Setter
-@NoArgsConstructor
 public class SearchHistory {
 
     @Id
@@ -35,34 +33,48 @@ public class SearchHistory {
     @Column(nullable = false, length = 20)
     private ProviderType provider;
 
+    @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime searchedAt;
 
+    @Setter
     @Column(length = 50)
     private String make;
 
+    @Setter
     @Column(length = 50)
     private String model;
 
+    @Setter
     private Integer modelYear;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private FuelType fuelType;
 
+    @Setter
     @Column(length = 50)
     private String engine;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private VehicleStatus vehicleStatus;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private SearchStatus searchStatus;
 
-    @PrePersist
-    protected void onCreate() {
-        this.searchedAt = LocalDateTime.now();
+    protected SearchHistory() {
+    }
+
+    public SearchHistory(Long userId, Long companyId, String vin, ProviderType provider, SearchStatus searchStatus) {
+        this.userId = userId;
+        this.companyId = companyId;
+        this.vin = vin;
+        this.provider = provider;
+        this.searchStatus = searchStatus;
     }
 }
