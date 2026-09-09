@@ -1,0 +1,9 @@
+package rs.tiacgroup.fleetopsgateway.searchhistory.entity;
+
+public enum VehicleStatus {
+    ACTIVE,
+    DAMAGED,
+    STOLEN,
+    SCRAPPED,
+    INACTIVE
+}
