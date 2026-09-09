@@ -41,7 +41,7 @@ public class User {
 
     @Setter
     @Column(nullable = false)
-    private boolean active = true;
+    private boolean active;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -59,5 +59,6 @@ public class User {
         this.firstName = firstName;
         this.lastName = lastName;
         this.role = role;
+        this.active = true;
     }
 }

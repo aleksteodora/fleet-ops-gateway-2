@@ -25,7 +25,7 @@ public class Company {
 
     @Setter
     @Column(nullable = false)
-    private boolean active = true;
+    private boolean active;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -43,5 +43,6 @@ public class Company {
 
     public Company(String name) {
         this.name = name;
+        this.active = true;
     }
 }

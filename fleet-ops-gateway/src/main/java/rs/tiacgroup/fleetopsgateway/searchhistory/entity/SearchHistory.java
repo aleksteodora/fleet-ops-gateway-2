@@ -77,4 +77,20 @@ public class SearchHistory {
         this.provider = provider;
         this.searchStatus = searchStatus;
     }
+
+    public SearchHistory(Long userId, Long companyId, String vin, ProviderType provider,
+                         String make, String model, Integer modelYear, FuelType fuelType,
+                         String engine, VehicleStatus vehicleStatus, SearchStatus searchStatus) {
+        this.userId = userId;
+        this.companyId = companyId;
+        this.vin = vin;
+        this.provider = provider;
+        this.make = make;
+        this.model = model;
+        this.modelYear = modelYear;
+        this.fuelType = fuelType;
+        this.engine = engine;
+        this.vehicleStatus = vehicleStatus;
+        this.searchStatus = searchStatus;
+    }
 }
