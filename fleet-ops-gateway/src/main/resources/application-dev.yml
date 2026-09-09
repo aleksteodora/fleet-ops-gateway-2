@@ -38,5 +38,6 @@ logging:
     org.springframework: INFO
     org.springframework.boot.security.autoconfigure: WARN
     org.hibernate.SQL: ERROR
+    rs.tiacgroup.fleetopsgateway: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] [%X{traceId}] %-5level %logger - %msg%n"

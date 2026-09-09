@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.CompanyResponse;
 import rs.tiacgroup.fleetopsgateway.identity.service.CompanyService;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 
 @RestController
 @RequestMapping("/api/v1/companies")
@@ -19,7 +21,8 @@ public class CompanyController {
     }
 
     @GetMapping
-    public Page<CompanyResponse> listCompanies(Pageable pageable) {
+    public Page<CompanyResponse> listCompanies(
+            @PageableDefault(sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
         return companyService.listCompanies(pageable);
     }
 }
