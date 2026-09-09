@@ -15,14 +15,16 @@ public class CompanyService {
     private static final Logger log = LoggerFactory.getLogger(CompanyService.class);
 
     private final CompanyRepository companyRepository;
+    private final CompanyMapper companyMapper;
 
-    public CompanyService(CompanyRepository companyRepository) {
+    public CompanyService(CompanyRepository companyRepository, CompanyMapper companyMapper) {
         this.companyRepository = companyRepository;
+        this.companyMapper = companyMapper;
     }
 
     public Page<CompanyResponse> listCompanies(Pageable pageable) {
         log.debug("Fetching companies page={} size={}", pageable.getPageNumber(), pageable.getPageSize());
         return companyRepository.findAll(pageable)
-                .map(CompanyMapper::toResponse);
+                .map(companyMapper::toResponse);
     }
 }

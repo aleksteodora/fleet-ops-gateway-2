@@ -1,20 +1,11 @@
 package rs.tiacgroup.fleetopsgateway.identity.dto;
 
-import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
+import org.mapstruct.Mapper;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.CompanyResponse;
+import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
 
-public class CompanyMapper {
+@Mapper(componentModel = "spring")
+public interface CompanyMapper {
 
-    private CompanyMapper() {
-    }
-
-    public static CompanyResponse toResponse(Company company) {
-        return new CompanyResponse(
-                company.getId(),
-                company.getName(),
-                company.isActive(),
-                company.getCreatedAt(),
-                company.getUpdatedAt()
-        );
-    }
+    CompanyResponse toResponse(Company company);
 }
