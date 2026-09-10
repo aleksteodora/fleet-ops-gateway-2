@@ -17,6 +17,8 @@ import rs.tiacgroup.fleetopsgateway.identity.dto.response.CompanyResponse;
 import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
 import rs.tiacgroup.fleetopsgateway.identity.exception.CompanyAlreadyExistsException;
 import rs.tiacgroup.fleetopsgateway.identity.repository.CompanyRepository;
+import java.util.Optional;
+import rs.tiacgroup.fleetopsgateway.identity.exception.CompanyNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -117,5 +119,39 @@ class CompanyServiceTest {
         assertThatThrownBy(() -> companyService.createCompany(request))
                 .isInstanceOf(CompanyAlreadyExistsException.class)
                 .hasMessageContaining("Existing Company");
+    }
+
+    @Test
+    void getCompanyById_shouldReturnMappedResponseWhenFound() {
+        // given
+        Long id = 1L;
+        Company company = new Company("Test Company");
+        CompanyResponse response = new CompanyResponse(
+                id, "Test Company", true, LocalDateTime.now(), LocalDateTime.now());
+
+        when(companyRepository.findById(id)).thenReturn(Optional.of(company));
+        when(companyMapper.toResponse(company)).thenReturn(response);
+
+        // when
+        CompanyResponse result = companyService.getCompanyById(id);
+
+        // then
+        assertThat(result).isEqualTo(response);
+        verify(companyRepository).findById(id);
+        verify(companyMapper).toResponse(company);
+    }
+
+    @Test
+    void getCompanyById_shouldThrowExceptionWhenNotFound() {
+        // given
+        Long id = 999L;
+        when(companyRepository.findById(id)).thenReturn(Optional.empty());
+
+        // when / then
+        assertThatThrownBy(() -> companyService.getCompanyById(id))
+                .isInstanceOf(CompanyNotFoundException.class)
+                .hasMessageContaining("999");
+
+        verify(companyMapper, never()).toResponse(any());
     }
 }
