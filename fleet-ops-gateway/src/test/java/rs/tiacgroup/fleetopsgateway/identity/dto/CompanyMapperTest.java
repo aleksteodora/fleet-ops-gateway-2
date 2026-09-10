@@ -3,6 +3,7 @@ package rs.tiacgroup.fleetopsgateway.identity.dto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import rs.tiacgroup.fleetopsgateway.identity.dto.request.CreateCompanyRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.CompanyResponse;
 import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
 
@@ -34,5 +35,17 @@ class CompanyMapperTest {
 
         // then
         assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    void toEntity_shouldMapNameFromRequest() {
+        // given
+        CreateCompanyRequest request = new CreateCompanyRequest("New Company");
+
+        // when
+        Company actual = companyMapper.toEntity(request);
+
+        // then
+        assertThat(actual.getName()).isEqualTo("New Company");
     }
 }

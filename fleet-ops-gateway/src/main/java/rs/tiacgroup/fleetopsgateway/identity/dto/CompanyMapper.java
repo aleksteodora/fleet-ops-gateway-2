@@ -1,6 +1,7 @@
 package rs.tiacgroup.fleetopsgateway.identity.dto;
 
 import org.mapstruct.Mapper;
+import rs.tiacgroup.fleetopsgateway.identity.dto.request.CreateCompanyRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.CompanyResponse;
 import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
 
@@ -8,4 +9,6 @@ import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
 public interface CompanyMapper {
 
     CompanyResponse toResponse(Company company);
+
+    Company toEntity(CreateCompanyRequest request);
 }
