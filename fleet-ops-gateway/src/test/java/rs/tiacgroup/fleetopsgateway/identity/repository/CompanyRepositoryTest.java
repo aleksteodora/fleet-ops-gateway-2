@@ -1,0 +1,58 @@
+package rs.tiacgroup.fleetopsgateway.identity.repository;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.test.context.ActiveProfiles;
+import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@DataJpaTest
+@ActiveProfiles("test")
+class CompanyRepositoryTest {
+
+    @Autowired
+    private CompanyRepository companyRepository;
+
+    @BeforeEach
+    void setUp() {
+        companyRepository.deleteAll();
+    }
+
+    @Test
+    void save_shouldPersistCompanyAndGenerateIdAndTimestamps() {
+        // given
+        Company company = new Company("Test Company");
+
+        // when
+        Company saved = companyRepository.saveAndFlush(company);
+
+        // then
+        assertThat(saved.getId()).isNotNull();
+        assertThat(saved.getName()).isEqualTo("Test Company");
+        assertThat(saved.isActive()).isTrue();
+        assertThat(saved.getCreatedAt()).isNotNull();
+        assertThat(saved.getUpdatedAt()).isNotNull();
+    }
+
+    @Test
+    void findAll_shouldReturnPagedCompanies() {
+        // given
+        companyRepository.save(new Company("Alpha Logistics"));
+        companyRepository.save(new Company("Beta Transport"));
+        companyRepository.save(new Company("Gamma Fleet"));
+
+        // when
+        Page<Company> result = companyRepository.findAll(PageRequest.of(0, 2, Sort.by("id")));
+
+        // then
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getTotalElements()).isEqualTo(3);
+        assertThat(result.getTotalPages()).isEqualTo(2);
+    }
+}
