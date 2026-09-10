@@ -1,8 +1,8 @@
 package rs.tiacgroup.fleetopsgateway.identity.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -30,12 +30,8 @@ class CompanyServiceTest {
     @Mock
     private CompanyMapper companyMapper;
 
+    @InjectMocks
     private CompanyService companyService;
-
-    @BeforeEach
-    void setUp() {
-        companyService = new CompanyService(companyRepository, companyMapper);
-    }
 
     @Test
     void listCompanies_shouldReturnMappedPage() {

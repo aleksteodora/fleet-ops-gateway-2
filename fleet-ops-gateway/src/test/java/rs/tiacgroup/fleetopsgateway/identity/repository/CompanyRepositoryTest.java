@@ -1,9 +1,9 @@
 package rs.tiacgroup.fleetopsgateway.identity.repository;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -11,6 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -18,11 +19,6 @@ class CompanyRepositoryTest {
 
     @Autowired
     private CompanyRepository companyRepository;
-
-    @BeforeEach
-    void setUp() {
-        companyRepository.deleteAll();
-    }
 
     @Test
     void save_shouldPersistCompanyAndGenerateIdAndTimestamps() {
@@ -41,10 +37,10 @@ class CompanyRepositoryTest {
     }
 
     @Test
-    void findAll_shouldReturnPagedCompanies() {
+    void findAll_shouldReturnPagedCompaniesInCorrectOrder() {
         // given
-        companyRepository.save(new Company("Alpha Logistics"));
-        companyRepository.save(new Company("Beta Transport"));
+        Company alpha = companyRepository.save(new Company("Alpha Logistics"));
+        Company beta = companyRepository.save(new Company("Beta Transport"));
         companyRepository.save(new Company("Gamma Fleet"));
 
         // when
@@ -54,5 +50,18 @@ class CompanyRepositoryTest {
         assertThat(result.getContent()).hasSize(2);
         assertThat(result.getTotalElements()).isEqualTo(3);
         assertThat(result.getTotalPages()).isEqualTo(2);
+        assertThat(result.getContent().get(0).getId()).isEqualTo(alpha.getId());
+        assertThat(result.getContent().get(1).getId()).isEqualTo(beta.getId());
+    }
+
+    @Test
+    void save_shouldRejectDuplicateCompanyName() {
+        // given
+        companyRepository.saveAndFlush(new Company("Duplicate Company"));
+        Company duplicate = new Company("Duplicate Company");
+
+        // when / then
+        assertThatThrownBy(() -> companyRepository.saveAndFlush(duplicate))
+                .isInstanceOf(DataIntegrityViolationException.class);
     }
 }

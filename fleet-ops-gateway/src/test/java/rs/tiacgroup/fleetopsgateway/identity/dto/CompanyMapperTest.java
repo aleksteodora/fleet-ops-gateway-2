@@ -21,15 +21,18 @@ class CompanyMapperTest {
     void toResponse_shouldMapAllFieldsCorrectly() {
         // given
         Company company = new Company("Test Company");
+        CompanyResponse expected = new CompanyResponse(
+                company.getId(),
+                company.getName(),
+                company.isActive(),
+                company.getCreatedAt(),
+                company.getUpdatedAt()
+        );
 
         // when
-        CompanyResponse response = companyMapper.toResponse(company);
+        CompanyResponse actual = companyMapper.toResponse(company);
 
         // then
-        assertThat(response.id()).isEqualTo(company.getId());
-        assertThat(response.name()).isEqualTo(company.getName());
-        assertThat(response.active()).isEqualTo(company.isActive());
-        assertThat(response.createdAt()).isEqualTo(company.getCreatedAt());
-        assertThat(response.updatedAt()).isEqualTo(company.getUpdatedAt());
+        assertThat(actual).isEqualTo(expected);
     }
 }
