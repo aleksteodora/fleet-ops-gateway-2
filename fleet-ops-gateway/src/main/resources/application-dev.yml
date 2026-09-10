@@ -20,6 +20,12 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
 
+  data:
+    web:
+      pageable:
+        default-page-size: 15
+        max-page-size: 100
+
 springdoc:
   api-docs:
     enabled: true
@@ -32,5 +38,6 @@ logging:
     org.springframework: INFO
     org.springframework.boot.security.autoconfigure: WARN
     org.hibernate.SQL: ERROR
+    rs.tiacgroup.fleetopsgateway: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] [%X{traceId}] %-5level %logger - %msg%n"

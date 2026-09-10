@@ -4,6 +4,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/vehicle-search")
+@RequestMapping("/api/v1/vehicle-search")
 public class VehicleSearchController {
 }

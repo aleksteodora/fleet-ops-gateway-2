@@ -4,6 +4,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/search-history")
+@RequestMapping("/api/v1/search-history")
 public class SearchHistoryController {
 }
