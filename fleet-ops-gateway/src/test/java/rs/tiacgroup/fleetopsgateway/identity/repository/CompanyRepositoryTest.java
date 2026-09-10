@@ -64,25 +64,4 @@ class CompanyRepositoryTest {
         assertThatThrownBy(() -> companyRepository.saveAndFlush(duplicate))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
-
-    @Test
-    void existsByName_shouldReturnTrueWhenCompanyExists() {
-        // given
-        companyRepository.saveAndFlush(new Company("Existing Company"));
-
-        // when
-        boolean exists = companyRepository.existsByName("Existing Company");
-
-        // then
-        assertThat(exists).isTrue();
-    }
-
-    @Test
-    void existsByName_shouldReturnFalseWhenCompanyDoesNotExist() {
-        // when
-        boolean exists = companyRepository.existsByName("Nonexistent Company");
-
-        // then
-        assertThat(exists).isFalse();
-    }
 }

@@ -6,6 +6,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -68,9 +69,8 @@ class CompanyServiceTest {
         CompanyResponse expectedResponse = new CompanyResponse(
                 1L, "New Company", true, LocalDateTime.now(), LocalDateTime.now());
 
-        when(companyRepository.existsByName("New Company")).thenReturn(false);
         when(companyMapper.toEntity(request)).thenReturn(mappedCompany);
-        when(companyRepository.save(mappedCompany)).thenReturn(savedCompany);
+        when(companyRepository.saveAndFlush(mappedCompany)).thenReturn(savedCompany);
         when(companyMapper.toResponse(savedCompany)).thenReturn(expectedResponse);
 
         // when
@@ -78,8 +78,7 @@ class CompanyServiceTest {
 
         // then
         assertThat(result).isEqualTo(expectedResponse);
-        verify(companyRepository).existsByName("New Company");
-        verify(companyRepository).save(mappedCompany);
+        verify(companyRepository).saveAndFlush(mappedCompany);
     }
 
     @Test
@@ -89,9 +88,8 @@ class CompanyServiceTest {
         Company mappedCompany = new Company("New Company");
         Company savedCompany = new Company("New Company");
 
-        when(companyRepository.existsByName("New Company")).thenReturn(false);
         when(companyMapper.toEntity(request)).thenReturn(mappedCompany);
-        when(companyRepository.save(any(Company.class))).thenReturn(savedCompany);
+        when(companyRepository.saveAndFlush(any(Company.class))).thenReturn(savedCompany);
         when(companyMapper.toResponse(savedCompany)).thenReturn(
                 new CompanyResponse(1L, "New Company", true, LocalDateTime.now(), LocalDateTime.now()));
 
@@ -101,7 +99,7 @@ class CompanyServiceTest {
         companyService.createCompany(request);
 
         // then
-        verify(companyRepository).save(companyCaptor.capture());
+        verify(companyRepository).saveAndFlush(companyCaptor.capture());
         assertThat(companyCaptor.getValue().isActive()).isTrue();
     }
 
@@ -109,13 +107,15 @@ class CompanyServiceTest {
     void createCompany_shouldThrowExceptionWhenNameAlreadyExists() {
         // given
         CreateCompanyRequest request = new CreateCompanyRequest("Existing Company");
-        when(companyRepository.existsByName("Existing Company")).thenReturn(true);
+        Company mappedCompany = new Company("Existing Company");
+
+        when(companyMapper.toEntity(request)).thenReturn(mappedCompany);
+        when(companyRepository.saveAndFlush(mappedCompany))
+                .thenThrow(new DataIntegrityViolationException("duplicate key"));
 
         // when / then
         assertThatThrownBy(() -> companyService.createCompany(request))
                 .isInstanceOf(CompanyAlreadyExistsException.class)
                 .hasMessageContaining("Existing Company");
-
-        verify(companyRepository, never()).save(any());
     }
 }

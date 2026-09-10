@@ -1,6 +1,7 @@
 package rs.tiacgroup.fleetopsgateway.identity.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,15 +35,17 @@ public class CompanyService {
     public CompanyResponse createCompany(CreateCompanyRequest request) {
         log.info("Creating company with name={}", request.name());
 
-        if (companyRepository.existsByName(request.name())) {
+        Company company = companyMapper.toEntity(request);
+        company.setActive(true);
+
+        Company saved;
+        try {
+            saved = companyRepository.saveAndFlush(company);
+        } catch (DataIntegrityViolationException ex) {
             log.warn("Company creation failed, name already exists: {}", request.name());
             throw new CompanyAlreadyExistsException(
                     "Company with name '" + request.name() + "' already exists");
         }
-
-        Company company = companyMapper.toEntity(request);
-        company.setActive(true);
-        Company saved = companyRepository.save(company);
 
         log.info("Company created successfully, id={}", saved.getId());
         return companyMapper.toResponse(saved);
