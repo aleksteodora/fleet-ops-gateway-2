@@ -3,6 +3,7 @@ package rs.tiacgroup.fleetopsgateway.identity.repository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -11,6 +12,7 @@ import rs.tiacgroup.fleetopsgateway.identity.entity.User;
 import rs.tiacgroup.fleetopsgateway.identity.entity.UserRole;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -35,5 +37,16 @@ class UserRepositoryTest {
         assertThat(result.getTotalPages()).isEqualTo(2);
         assertThat(result.getContent().get(0).getId()).isEqualTo(alice.getId());
         assertThat(result.getContent().get(1).getId()).isEqualTo(bob.getId());
+    }
+
+    @Test
+    void save_shouldRejectDuplicateEmail() {
+        // given
+        userRepository.saveAndFlush(new User("duplicate@example.com", "First", "User", UserRole.ADMIN));
+        User duplicate = new User("duplicate@example.com", "Second", "User", UserRole.ADMIN);
+
+        // when / then
+        assertThatThrownBy(() -> userRepository.saveAndFlush(duplicate))
+                .isInstanceOf(DataIntegrityViolationException.class);
     }
 }

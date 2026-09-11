@@ -3,6 +3,7 @@ package rs.tiacgroup.fleetopsgateway.identity.dto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import rs.tiacgroup.fleetopsgateway.identity.dto.request.CreateUserRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.UserResponse;
 import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
 import rs.tiacgroup.fleetopsgateway.identity.entity.User;
@@ -67,5 +68,22 @@ class UserMapperTest {
 
         // then
         assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    void toEntity_shouldMapFieldsFromRequestAndIgnoreCompany() {
+        // given
+        CreateUserRequest request = new CreateUserRequest(
+                1L, "marko@example.com", "Marko", "Petrovic", UserRole.COMPANY_USER);
+
+        // when
+        User actual = userMapper.toEntity(request);
+
+        // then
+        assertThat(actual.getEmail()).isEqualTo("marko@example.com");
+        assertThat(actual.getFirstName()).isEqualTo("Marko");
+        assertThat(actual.getLastName()).isEqualTo("Petrovic");
+        assertThat(actual.getRole()).isEqualTo(UserRole.COMPANY_USER);
+        assertThat(actual.getCompany()).isNull();
     }
 }

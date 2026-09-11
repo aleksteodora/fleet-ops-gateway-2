@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import rs.tiacgroup.fleetopsgateway.identity.exception.CompanyAlreadyExistsException;
 import rs.tiacgroup.fleetopsgateway.identity.exception.CompanyNotFoundException;
+import rs.tiacgroup.fleetopsgateway.identity.exception.InvalidUserCompanyAssignmentException;
+import rs.tiacgroup.fleetopsgateway.identity.exception.UserAlreadyExistsException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,5 +46,15 @@ public class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "An unexpected error occurred. Please try again later.");
+    }
+
+    @ExceptionHandler(InvalidUserCompanyAssignmentException.class)
+    public ProblemDetail handleInvalidUserCompanyAssignment(InvalidUserCompanyAssignmentException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ProblemDetail handleUserAlreadyExists(UserAlreadyExistsException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
     }
 }
