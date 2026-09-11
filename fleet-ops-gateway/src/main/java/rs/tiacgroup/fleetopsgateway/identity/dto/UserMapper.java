@@ -2,7 +2,9 @@ package rs.tiacgroup.fleetopsgateway.identity.dto;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import rs.tiacgroup.fleetopsgateway.identity.dto.request.CreateUserRequest;
+import rs.tiacgroup.fleetopsgateway.identity.dto.request.UpdateUserRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.UserResponse;
 import rs.tiacgroup.fleetopsgateway.identity.entity.User;
 
@@ -14,4 +16,6 @@ public interface UserMapper {
 
     @Mapping(target = "company", ignore = true)
     User toEntity(CreateUserRequest request);
+
+    void updateEntityFromRequest(UpdateUserRequest request, @MappingTarget User user);
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rs.tiacgroup.fleetopsgateway.identity.dto.UserMapper;
 import rs.tiacgroup.fleetopsgateway.identity.dto.request.CreateUserRequest;
+import rs.tiacgroup.fleetopsgateway.identity.dto.request.UpdateUserRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.UserResponse;
 import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
 import rs.tiacgroup.fleetopsgateway.identity.entity.User;
@@ -83,5 +84,18 @@ public class UserService {
             throw new InvalidUserCompanyAssignmentException(
                     "Company users must be assigned to a company");
         }
+    }
+
+    public UserResponse updateUser(Long id, UpdateUserRequest request) {
+        log.info("Updating user id={} with firstName={} lastName={}", id, request.firstName(), request.lastName());
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+
+        userMapper.updateEntityFromRequest(request, user);
+        User saved = userRepository.save(user);
+
+        log.info("User updated successfully, id={}", saved.getId());
+        return userMapper.toResponse(saved);
     }
 }

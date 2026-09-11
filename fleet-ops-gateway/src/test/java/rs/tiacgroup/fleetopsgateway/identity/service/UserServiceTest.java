@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import rs.tiacgroup.fleetopsgateway.identity.dto.UserMapper;
 import rs.tiacgroup.fleetopsgateway.identity.dto.request.CreateUserRequest;
+import rs.tiacgroup.fleetopsgateway.identity.dto.request.UpdateUserRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.UserResponse;
 import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
 import rs.tiacgroup.fleetopsgateway.identity.entity.User;
@@ -45,6 +46,8 @@ class UserServiceTest {
     private static final String ADMIN_FIRST_NAME = "Ana";
     private static final String ADMIN_LAST_NAME = "Jovanovic";
     private static final String TEST_COMPANY_NAME = "Test Company";
+    private static final String UPDATED_FIRST_NAME = "NewFirst";
+    private static final String UPDATED_LAST_NAME = "NewLast";
 
     @Mock
     private UserRepository userRepository;
@@ -230,5 +233,44 @@ class UserServiceTest {
                 .hasMessageContaining("999");
 
         verify(userMapper, never()).toResponse(any());
+    }
+
+    @Test
+    void updateUser_shouldUpdateAndReturnMappedResponse() {
+        // given
+        Long id = 1L;
+        UpdateUserRequest request = new UpdateUserRequest(UPDATED_FIRST_NAME, UPDATED_LAST_NAME);
+        User existingUser = new User(COMPANY_USER_EMAIL, COMPANY_USER_FIRST_NAME, COMPANY_USER_LAST_NAME, UserRole.COMPANY_USER);
+        UserResponse expectedResponse = new UserResponse(
+                id, COMPANY_USER_EMAIL, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UserRole.COMPANY_USER,
+                true, TEST_COMPANY_NAME, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(existingUser));
+        when(userRepository.save(existingUser)).thenReturn(existingUser);
+        when(userMapper.toResponse(existingUser)).thenReturn(expectedResponse);
+
+        // when
+        UserResponse result = userService.updateUser(id, request);
+
+        // then
+        assertThat(result).isEqualTo(expectedResponse);
+        verify(userMapper).updateEntityFromRequest(request, existingUser);
+        verify(userRepository).save(existingUser);
+    }
+
+    @Test
+    void updateUser_shouldThrowExceptionWhenUserNotFound() {
+        // given
+        Long id = 999L;
+        UpdateUserRequest request = new UpdateUserRequest(UPDATED_FIRST_NAME, UPDATED_LAST_NAME);
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        // when / then
+        assertThatThrownBy(() -> userService.updateUser(id, request))
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessageContaining("999");
+
+        verify(userMapper, never()).updateEntityFromRequest(any(), any());
+        verify(userRepository, never()).save(any());
     }
 }
