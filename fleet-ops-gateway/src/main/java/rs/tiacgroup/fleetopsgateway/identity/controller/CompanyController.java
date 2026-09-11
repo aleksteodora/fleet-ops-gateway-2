@@ -44,4 +44,10 @@ public class CompanyController {
     public CompanyResponse updateCompany(@PathVariable Long id, @Valid @RequestBody UpdateCompanyRequest request) {
         return companyService.updateCompany(id, request);
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> deactivateCompany(@PathVariable Long id) {
+        companyService.deactivateCompany(id);
+        return ResponseEntity.noContent().build();
+    }
 }

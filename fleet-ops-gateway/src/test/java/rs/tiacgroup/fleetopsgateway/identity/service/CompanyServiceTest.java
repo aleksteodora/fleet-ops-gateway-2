@@ -210,4 +210,33 @@ class CompanyServiceTest {
                 .isInstanceOf(CompanyAlreadyExistsException.class)
                 .hasMessageContaining("Taken Name");
     }
+
+    @Test
+    void deactivateCompany_shouldSetActiveFalseAndSave() {
+        // given
+        Long id = 1L;
+        Company company = new Company("Test Company");
+        when(companyRepository.findById(id)).thenReturn(Optional.of(company));
+
+        // when
+        companyService.deactivateCompany(id);
+
+        // then
+        assertThat(company.isActive()).isFalse();
+        verify(companyRepository).save(company);
+    }
+
+    @Test
+    void deactivateCompany_shouldThrowExceptionWhenNotFound() {
+        // given
+        Long id = 999L;
+        when(companyRepository.findById(id)).thenReturn(Optional.empty());
+
+        // when / then
+        assertThatThrownBy(() -> companyService.deactivateCompany(id))
+                .isInstanceOf(CompanyNotFoundException.class)
+                .hasMessageContaining("999");
+
+        verify(companyRepository, never()).save(any());
+    }
 }
