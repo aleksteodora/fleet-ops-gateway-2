@@ -26,30 +26,46 @@ class UserMapperTest {
         User user = new User("marko@example.com", "Marko", "Petrovic", UserRole.COMPANY_USER);
         user.setCompany(company);
 
+        UserResponse expected = new UserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getRole(),
+                user.isActive(),
+                company.getName(),
+                user.getCreatedAt(),
+                user.getUpdatedAt()
+        );
+
         // when
         UserResponse actual = userMapper.toResponse(user);
 
         // then
-        assertThat(actual.id()).isEqualTo(user.getId());
-        assertThat(actual.email()).isEqualTo(user.getEmail());
-        assertThat(actual.firstName()).isEqualTo(user.getFirstName());
-        assertThat(actual.lastName()).isEqualTo(user.getLastName());
-        assertThat(actual.role()).isEqualTo(user.getRole());
-        assertThat(actual.active()).isEqualTo(user.isActive());
-        assertThat(actual.companyName()).isEqualTo("Test Company");
-        assertThat(actual.createdAt()).isEqualTo(user.getCreatedAt());
-        assertThat(actual.updatedAt()).isEqualTo(user.getUpdatedAt());
+        assertThat(actual).isEqualTo(expected);
     }
 
     @Test
-    void toResponse_shouldMapCompanyNameAsNullWhenCompanyIsNull() {
+    void toResponse_shouldMapAllFieldsCorrectlyWhenCompanyIsNull() {
         // given
         User admin = new User("admin@example.com", "Ana", "Jovanovic", UserRole.ADMIN);
+
+        UserResponse expected = new UserResponse(
+                admin.getId(),
+                admin.getEmail(),
+                admin.getFirstName(),
+                admin.getLastName(),
+                admin.getRole(),
+                admin.isActive(),
+                null,
+                admin.getCreatedAt(),
+                admin.getUpdatedAt()
+        );
 
         // when
         UserResponse actual = userMapper.toResponse(admin);
 
         // then
-        assertThat(actual.companyName()).isNull();
+        assertThat(actual).isEqualTo(expected);
     }
 }
