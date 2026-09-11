@@ -81,4 +81,16 @@ public class CompanyService {
         log.info("Company updated successfully, id={}", saved.getId());
         return companyMapper.toResponse(saved);
     }
+
+    public void deactivateCompany(Long id) {
+        log.info("Deactivating company id={}", id);
+
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new CompanyNotFoundException("Company with id " + id + " not found"));
+
+        company.setActive(false);
+        companyRepository.save(company);
+
+        log.info("Company deactivated successfully, id={}", id);
+    }
 }
