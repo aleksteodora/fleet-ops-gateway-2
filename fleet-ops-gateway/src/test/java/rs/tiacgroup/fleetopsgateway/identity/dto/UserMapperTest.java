@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import rs.tiacgroup.fleetopsgateway.identity.dto.request.CreateUserRequest;
+import rs.tiacgroup.fleetopsgateway.identity.dto.request.UpdateUserRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.UserResponse;
 import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
 import rs.tiacgroup.fleetopsgateway.identity.entity.User;
@@ -85,5 +86,19 @@ class UserMapperTest {
         assertThat(actual.getLastName()).isEqualTo("Petrovic");
         assertThat(actual.getRole()).isEqualTo(UserRole.COMPANY_USER);
         assertThat(actual.getCompany()).isNull();
+    }
+
+    @Test
+    void updateEntityFromRequest_shouldUpdateFirstNameAndLastNameOnExistingUser() {
+        // given
+        User user = new User("marko@example.com", "OldFirst", "OldLast", UserRole.COMPANY_USER);
+        UpdateUserRequest request = new UpdateUserRequest("NewFirst", "NewLast");
+
+        // when
+        userMapper.updateEntityFromRequest(request, user);
+
+        // then
+        assertThat(user.getFirstName()).isEqualTo("NewFirst");
+        assertThat(user.getLastName()).isEqualTo("NewLast");
     }
 }

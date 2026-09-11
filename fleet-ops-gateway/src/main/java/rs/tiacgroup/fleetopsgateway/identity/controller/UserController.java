@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rs.tiacgroup.fleetopsgateway.identity.dto.request.CreateUserRequest;
+import rs.tiacgroup.fleetopsgateway.identity.dto.request.UpdateUserRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.UserResponse;
 import rs.tiacgroup.fleetopsgateway.identity.service.UserService;
 
@@ -38,5 +39,10 @@ public class UserController {
     @GetMapping("/{id}")
     public UserResponse getUserById(@PathVariable Long id) {
         return userService.getUserById(id);
+    }
+
+    @PutMapping("/{id}")
+    public UserResponse updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
+        return userService.updateUser(id, request);
     }
 }
