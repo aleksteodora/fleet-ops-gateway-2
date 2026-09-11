@@ -11,6 +11,7 @@ import rs.tiacgroup.fleetopsgateway.identity.dto.request.CreateCompanyRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.CompanyResponse;
 import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
 import rs.tiacgroup.fleetopsgateway.identity.exception.CompanyAlreadyExistsException;
+import rs.tiacgroup.fleetopsgateway.identity.exception.CompanyNotFoundException;
 import rs.tiacgroup.fleetopsgateway.identity.repository.CompanyRepository;
 
 @Service
@@ -29,6 +30,13 @@ public class CompanyService {
         log.debug("Fetching companies page={} size={}", pageable.getPageNumber(), pageable.getPageSize());
         return companyRepository.findAll(pageable)
                 .map(companyMapper::toResponse);
+    }
+
+    public CompanyResponse getCompanyById(Long id) {
+        log.debug("Fetching company with id={}", id);
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new CompanyNotFoundException("Company with id " + id + " not found"));
+        return companyMapper.toResponse(company);
     }
 
     @Transactional

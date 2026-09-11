@@ -28,6 +28,11 @@ public class CompanyController {
         return companyService.listCompanies(pageable);
     }
 
+    @GetMapping("/{id}")
+    public CompanyResponse getCompanyById(@PathVariable Long id) {
+        return companyService.getCompanyById(id);
+    }
+
     @PostMapping
     public ResponseEntity<CompanyResponse> createCompany(@Valid @RequestBody CreateCompanyRequest request) {
         CompanyResponse created = companyService.createCompany(request);
