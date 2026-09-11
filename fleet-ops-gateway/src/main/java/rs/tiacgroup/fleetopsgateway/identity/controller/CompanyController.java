@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rs.tiacgroup.fleetopsgateway.identity.dto.request.CreateCompanyRequest;
+import rs.tiacgroup.fleetopsgateway.identity.dto.request.UpdateCompanyRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.CompanyResponse;
 import rs.tiacgroup.fleetopsgateway.identity.service.CompanyService;
 
@@ -37,5 +38,10 @@ public class CompanyController {
     public ResponseEntity<CompanyResponse> createCompany(@Valid @RequestBody CreateCompanyRequest request) {
         CompanyResponse created = companyService.createCompany(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PutMapping("/{id}")
+    public CompanyResponse updateCompany(@PathVariable Long id, @Valid @RequestBody UpdateCompanyRequest request) {
+        return companyService.updateCompany(id, request);
     }
 }

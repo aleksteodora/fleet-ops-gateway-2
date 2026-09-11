@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rs.tiacgroup.fleetopsgateway.identity.dto.CompanyMapper;
 import rs.tiacgroup.fleetopsgateway.identity.dto.request.CreateCompanyRequest;
+import rs.tiacgroup.fleetopsgateway.identity.dto.request.UpdateCompanyRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.CompanyResponse;
 import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
 import rs.tiacgroup.fleetopsgateway.identity.exception.CompanyAlreadyExistsException;
@@ -56,6 +57,28 @@ public class CompanyService {
         }
 
         log.info("Company created successfully, id={}", saved.getId());
+        return companyMapper.toResponse(saved);
+    }
+
+    @Transactional
+    public CompanyResponse updateCompany(Long id, UpdateCompanyRequest request) {
+        log.info("Updating company id={} with name={}", id, request.name());
+
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new CompanyNotFoundException("Company with id " + id + " not found"));
+
+        companyMapper.updateEntityFromRequest(request, company);
+
+        Company saved;
+        try {
+            saved = companyRepository.saveAndFlush(company);
+        } catch (DataIntegrityViolationException ex) {
+            log.warn("Company update failed, name already exists: {}", request.name());
+            throw new CompanyAlreadyExistsException(
+                    "Company with name '" + request.name() + "' already exists");
+        }
+
+        log.info("Company updated successfully, id={}", saved.getId());
         return companyMapper.toResponse(saved);
     }
 }
