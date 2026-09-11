@@ -273,4 +273,33 @@ class UserServiceTest {
         verify(userMapper, never()).updateEntityFromRequest(any(), any());
         verify(userRepository, never()).save(any());
     }
+
+    @Test
+    void deactivateUser_shouldSetActiveFalseAndSave() {
+        // given
+        Long id = 1L;
+        User user = new User(COMPANY_USER_EMAIL, COMPANY_USER_FIRST_NAME, COMPANY_USER_LAST_NAME, UserRole.COMPANY_USER);
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+
+        // when
+        userService.deactivateUser(id);
+
+        // then
+        assertThat(user.isActive()).isFalse();
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void deactivateUser_shouldThrowExceptionWhenNotFound() {
+        // given
+        Long id = 999L;
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        // when / then
+        assertThatThrownBy(() -> userService.deactivateUser(id))
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessageContaining("999");
+
+        verify(userRepository, never()).save(any());
+    }
 }
