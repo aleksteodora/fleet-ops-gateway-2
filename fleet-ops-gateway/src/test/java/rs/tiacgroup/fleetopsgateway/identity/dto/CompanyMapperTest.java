@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import rs.tiacgroup.fleetopsgateway.identity.dto.request.CreateCompanyRequest;
+import rs.tiacgroup.fleetopsgateway.identity.dto.request.UpdateCompanyRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.CompanyResponse;
 import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
 
@@ -47,5 +48,18 @@ class CompanyMapperTest {
 
         // then
         assertThat(actual.getName()).isEqualTo("New Company");
+    }
+
+    @Test
+    void updateEntityFromRequest_shouldUpdateNameOnExistingCompany() {
+        // given
+        Company company = new Company("Old Name");
+        UpdateCompanyRequest request = new UpdateCompanyRequest("Updated Name");
+
+        // when
+        companyMapper.updateEntityFromRequest(request, company);
+
+        // then
+        assertThat(company.getName()).isEqualTo("Updated Name");
     }
 }

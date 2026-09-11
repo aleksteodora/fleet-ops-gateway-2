@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import rs.tiacgroup.fleetopsgateway.identity.dto.CompanyMapper;
 import rs.tiacgroup.fleetopsgateway.identity.dto.request.CreateCompanyRequest;
+import rs.tiacgroup.fleetopsgateway.identity.dto.request.UpdateCompanyRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.CompanyResponse;
 import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
 import rs.tiacgroup.fleetopsgateway.identity.exception.CompanyAlreadyExistsException;
@@ -153,5 +154,60 @@ class CompanyServiceTest {
                 .hasMessageContaining("999");
 
         verify(companyMapper, never()).toResponse(any());
+    }
+
+    @Test
+    void updateCompany_shouldUpdateAndReturnMappedResponse() {
+        // given
+        Long id = 1L;
+        UpdateCompanyRequest request = new UpdateCompanyRequest("Updated Name");
+        Company existingCompany = new Company("Old Name");
+        CompanyResponse expectedResponse = new CompanyResponse(
+                id, "Updated Name", true, LocalDateTime.now(), LocalDateTime.now());
+
+        when(companyRepository.findById(id)).thenReturn(Optional.of(existingCompany));
+        when(companyRepository.saveAndFlush(existingCompany)).thenReturn(existingCompany);
+        when(companyMapper.toResponse(existingCompany)).thenReturn(expectedResponse);
+
+        // when
+        CompanyResponse result = companyService.updateCompany(id, request);
+
+        // then
+        assertThat(result).isEqualTo(expectedResponse);
+        verify(companyMapper).updateEntityFromRequest(request, existingCompany);
+        verify(companyRepository).saveAndFlush(existingCompany);
+    }
+
+    @Test
+    void updateCompany_shouldThrowExceptionWhenCompanyNotFound() {
+        // given
+        Long id = 999L;
+        UpdateCompanyRequest request = new UpdateCompanyRequest("New Name");
+        when(companyRepository.findById(id)).thenReturn(Optional.empty());
+
+        // when / then
+        assertThatThrownBy(() -> companyService.updateCompany(id, request))
+                .isInstanceOf(CompanyNotFoundException.class)
+                .hasMessageContaining("999");
+
+        verify(companyMapper, never()).updateEntityFromRequest(any(), any());
+        verify(companyRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void updateCompany_shouldThrowExceptionWhenNewNameAlreadyExists() {
+        // given
+        Long id = 1L;
+        UpdateCompanyRequest request = new UpdateCompanyRequest("Taken Name");
+        Company existingCompany = new Company("Old Name");
+
+        when(companyRepository.findById(id)).thenReturn(Optional.of(existingCompany));
+        when(companyRepository.saveAndFlush(existingCompany))
+                .thenThrow(new DataIntegrityViolationException("duplicate key"));
+
+        // when / then
+        assertThatThrownBy(() -> companyService.updateCompany(id, request))
+                .isInstanceOf(CompanyAlreadyExistsException.class)
+                .hasMessageContaining("Taken Name");
     }
 }
