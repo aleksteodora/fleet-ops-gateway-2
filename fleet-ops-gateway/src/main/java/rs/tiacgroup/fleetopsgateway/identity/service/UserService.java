@@ -98,4 +98,16 @@ public class UserService {
         log.info("User updated successfully, id={}", saved.getId());
         return userMapper.toResponse(saved);
     }
+
+    public void deactivateUser(Long id) {
+        log.info("Deactivating user id={}", id);
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+
+        user.setActive(false);
+        userRepository.save(user);
+
+        log.info("User deactivated successfully, id={}", id);
+    }
 }
