@@ -15,6 +15,7 @@ import rs.tiacgroup.fleetopsgateway.identity.entity.UserRole;
 import rs.tiacgroup.fleetopsgateway.identity.exception.CompanyNotFoundException;
 import rs.tiacgroup.fleetopsgateway.identity.exception.InvalidUserCompanyAssignmentException;
 import rs.tiacgroup.fleetopsgateway.identity.exception.UserAlreadyExistsException;
+import rs.tiacgroup.fleetopsgateway.identity.exception.UserNotFoundException;
 import rs.tiacgroup.fleetopsgateway.identity.repository.CompanyRepository;
 import rs.tiacgroup.fleetopsgateway.identity.repository.UserRepository;
 
@@ -36,6 +37,13 @@ public class UserService {
         log.debug("Fetching users page={} size={}", pageable.getPageNumber(), pageable.getPageSize());
         return userRepository.findAll(pageable)
                 .map(userMapper::toResponse);
+    }
+
+    public UserResponse getUserById(Long id) {
+        log.debug("Fetching user with id={}", id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+        return userMapper.toResponse(user);
     }
 
     @Transactional

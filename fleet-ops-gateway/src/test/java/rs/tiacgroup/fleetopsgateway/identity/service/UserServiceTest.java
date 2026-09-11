@@ -19,6 +19,7 @@ import rs.tiacgroup.fleetopsgateway.identity.entity.UserRole;
 import rs.tiacgroup.fleetopsgateway.identity.exception.CompanyNotFoundException;
 import rs.tiacgroup.fleetopsgateway.identity.exception.InvalidUserCompanyAssignmentException;
 import rs.tiacgroup.fleetopsgateway.identity.exception.UserAlreadyExistsException;
+import rs.tiacgroup.fleetopsgateway.identity.exception.UserNotFoundException;
 import rs.tiacgroup.fleetopsgateway.identity.repository.CompanyRepository;
 import rs.tiacgroup.fleetopsgateway.identity.repository.UserRepository;
 
@@ -194,5 +195,40 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.createUser(request))
                 .isInstanceOf(UserAlreadyExistsException.class)
                 .hasMessageContaining(ADMIN_EMAIL);
+    }
+
+    @Test
+    void getUserById_shouldReturnMappedResponseWhenFound() {
+        // given
+        Long id = 1L;
+        User user = new User(COMPANY_USER_EMAIL, COMPANY_USER_FIRST_NAME, COMPANY_USER_LAST_NAME, UserRole.COMPANY_USER);
+        UserResponse response = new UserResponse(
+                id, COMPANY_USER_EMAIL, COMPANY_USER_FIRST_NAME, COMPANY_USER_LAST_NAME, UserRole.COMPANY_USER,
+                true, TEST_COMPANY_NAME, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(userMapper.toResponse(user)).thenReturn(response);
+
+        // when
+        UserResponse result = userService.getUserById(id);
+
+        // then
+        assertThat(result).isEqualTo(response);
+        verify(userRepository).findById(id);
+        verify(userMapper).toResponse(user);
+    }
+
+    @Test
+    void getUserById_shouldThrowExceptionWhenNotFound() {
+        // given
+        Long id = 999L;
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        // when / then
+        assertThatThrownBy(() -> userService.getUserById(id))
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessageContaining("999");
+
+        verify(userMapper, never()).toResponse(any());
     }
 }
