@@ -32,6 +32,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class CompanyServiceTest {
 
+    private static final LocalDateTime FIXED_TIMESTAMP = LocalDateTime.of(2026, 1, 1, 12, 0);
+
     @Mock
     private CompanyRepository companyRepository;
 
@@ -46,7 +48,7 @@ class CompanyServiceTest {
         // given
         Company company = new Company("Test Company");
         CompanyResponse response = new CompanyResponse(
-                1L, "Test Company", true, LocalDateTime.now(), LocalDateTime.now());
+                1L, "Test Company", true, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
         Pageable pageable = PageRequest.of(0, 10);
         Page<Company> companyPage = new PageImpl<>(List.of(company), pageable, 1);
 
@@ -70,7 +72,7 @@ class CompanyServiceTest {
         Company mappedCompany = new Company("New Company");
         Company savedCompany = new Company("New Company");
         CompanyResponse expectedResponse = new CompanyResponse(
-                1L, "New Company", true, LocalDateTime.now(), LocalDateTime.now());
+                1L, "New Company", true, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
 
         when(companyMapper.toEntity(request)).thenReturn(mappedCompany);
         when(companyRepository.saveAndFlush(mappedCompany)).thenReturn(savedCompany);
@@ -94,7 +96,7 @@ class CompanyServiceTest {
         when(companyMapper.toEntity(request)).thenReturn(mappedCompany);
         when(companyRepository.saveAndFlush(any(Company.class))).thenReturn(savedCompany);
         when(companyMapper.toResponse(savedCompany)).thenReturn(
-                new CompanyResponse(1L, "New Company", true, LocalDateTime.now(), LocalDateTime.now()));
+                new CompanyResponse(1L, "New Company", true, FIXED_TIMESTAMP, FIXED_TIMESTAMP));
 
         ArgumentCaptor<Company> companyCaptor = ArgumentCaptor.forClass(Company.class);
 
@@ -128,7 +130,7 @@ class CompanyServiceTest {
         Long id = 1L;
         Company company = new Company("Test Company");
         CompanyResponse response = new CompanyResponse(
-                id, "Test Company", true, LocalDateTime.now(), LocalDateTime.now());
+                id, "Test Company", true, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
 
         when(companyRepository.findById(id)).thenReturn(Optional.of(company));
         when(companyMapper.toResponse(company)).thenReturn(response);
@@ -163,7 +165,7 @@ class CompanyServiceTest {
         UpdateCompanyRequest request = new UpdateCompanyRequest("Updated Name");
         Company existingCompany = new Company("Old Name");
         CompanyResponse expectedResponse = new CompanyResponse(
-                id, "Updated Name", true, LocalDateTime.now(), LocalDateTime.now());
+                id, "Updated Name", true, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
 
         when(companyRepository.findById(id)).thenReturn(Optional.of(existingCompany));
         when(companyRepository.saveAndFlush(existingCompany)).thenReturn(existingCompany);

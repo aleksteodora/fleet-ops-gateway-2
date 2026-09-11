@@ -36,6 +36,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
+    private static final LocalDateTime FIXED_TIMESTAMP = LocalDateTime.of(2026, 1, 1, 12, 0);
+
     @Mock
     private UserRepository userRepository;
 
@@ -54,7 +56,7 @@ class UserServiceTest {
         User user = new User("marko@example.com", "Marko", "Petrovic", UserRole.COMPANY_USER);
         UserResponse response = new UserResponse(
                 1L, "marko@example.com", "Marko", "Petrovic", UserRole.COMPANY_USER,
-                true, "Test Company", LocalDateTime.now(), LocalDateTime.now());
+                true, "Test Company", FIXED_TIMESTAMP, FIXED_TIMESTAMP);
         Pageable pageable = PageRequest.of(0, 10);
         Page<User> userPage = new PageImpl<>(List.of(user), pageable, 1);
 
@@ -81,7 +83,7 @@ class UserServiceTest {
         User savedUser = new User("marko@example.com", "Marko", "Petrovic", UserRole.COMPANY_USER);
         UserResponse expectedResponse = new UserResponse(
                 1L, "marko@example.com", "Marko", "Petrovic", UserRole.COMPANY_USER,
-                true, "Test Company", LocalDateTime.now(), LocalDateTime.now());
+                true, "Test Company", FIXED_TIMESTAMP, FIXED_TIMESTAMP);
 
         when(userMapper.toEntity(request)).thenReturn(mappedUser);
         when(companyRepository.findById(1L)).thenReturn(Optional.of(company));
@@ -106,7 +108,7 @@ class UserServiceTest {
         User savedUser = new User("admin@example.com", "Ana", "Jovanovic", UserRole.ADMIN);
         UserResponse expectedResponse = new UserResponse(
                 1L, "admin@example.com", "Ana", "Jovanovic", UserRole.ADMIN,
-                true, null, LocalDateTime.now(), LocalDateTime.now());
+                true, null, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
 
         when(userMapper.toEntity(request)).thenReturn(mappedUser);
         when(userRepository.saveAndFlush(mappedUser)).thenReturn(savedUser);
