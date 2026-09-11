@@ -37,6 +37,13 @@ import static org.mockito.Mockito.when;
 class UserServiceTest {
 
     private static final LocalDateTime FIXED_TIMESTAMP = LocalDateTime.of(2026, 1, 1, 12, 0);
+    private static final String COMPANY_USER_EMAIL = "marko@example.com";
+    private static final String COMPANY_USER_FIRST_NAME = "Marko";
+    private static final String COMPANY_USER_LAST_NAME = "Petrovic";
+    private static final String ADMIN_EMAIL = "admin@example.com";
+    private static final String ADMIN_FIRST_NAME = "Ana";
+    private static final String ADMIN_LAST_NAME = "Jovanovic";
+    private static final String TEST_COMPANY_NAME = "Test Company";
 
     @Mock
     private UserRepository userRepository;
@@ -53,10 +60,10 @@ class UserServiceTest {
     @Test
     void listUsers_shouldReturnMappedPage() {
         // given
-        User user = new User("marko@example.com", "Marko", "Petrovic", UserRole.COMPANY_USER);
+        User user = new User(COMPANY_USER_EMAIL, COMPANY_USER_FIRST_NAME, COMPANY_USER_LAST_NAME, UserRole.COMPANY_USER);
         UserResponse response = new UserResponse(
-                1L, "marko@example.com", "Marko", "Petrovic", UserRole.COMPANY_USER,
-                true, "Test Company", FIXED_TIMESTAMP, FIXED_TIMESTAMP);
+                1L, COMPANY_USER_EMAIL, COMPANY_USER_FIRST_NAME, COMPANY_USER_LAST_NAME, UserRole.COMPANY_USER,
+                true, TEST_COMPANY_NAME, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
         Pageable pageable = PageRequest.of(0, 10);
         Page<User> userPage = new PageImpl<>(List.of(user), pageable, 1);
 
@@ -77,13 +84,13 @@ class UserServiceTest {
     void createUser_shouldSaveAndReturnMappedResponseWhenCompanyUserWithValidCompany() {
         // given
         CreateUserRequest request = new CreateUserRequest(
-                1L, "marko@example.com", "Marko", "Petrovic", UserRole.COMPANY_USER);
-        Company company = new Company("Test Company");
-        User mappedUser = new User("marko@example.com", "Marko", "Petrovic", UserRole.COMPANY_USER);
-        User savedUser = new User("marko@example.com", "Marko", "Petrovic", UserRole.COMPANY_USER);
+                1L, COMPANY_USER_EMAIL, COMPANY_USER_FIRST_NAME, COMPANY_USER_LAST_NAME, UserRole.COMPANY_USER);
+        Company company = new Company(TEST_COMPANY_NAME);
+        User mappedUser = new User(COMPANY_USER_EMAIL, COMPANY_USER_FIRST_NAME, COMPANY_USER_LAST_NAME, UserRole.COMPANY_USER);
+        User savedUser = new User(COMPANY_USER_EMAIL, COMPANY_USER_FIRST_NAME, COMPANY_USER_LAST_NAME, UserRole.COMPANY_USER);
         UserResponse expectedResponse = new UserResponse(
-                1L, "marko@example.com", "Marko", "Petrovic", UserRole.COMPANY_USER,
-                true, "Test Company", FIXED_TIMESTAMP, FIXED_TIMESTAMP);
+                1L, COMPANY_USER_EMAIL, COMPANY_USER_FIRST_NAME, COMPANY_USER_LAST_NAME, UserRole.COMPANY_USER,
+                true, TEST_COMPANY_NAME, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
 
         when(userMapper.toEntity(request)).thenReturn(mappedUser);
         when(companyRepository.findById(1L)).thenReturn(Optional.of(company));
@@ -103,11 +110,11 @@ class UserServiceTest {
     void createUser_shouldSaveAndReturnMappedResponseWhenAdminWithoutCompany() {
         // given
         CreateUserRequest request = new CreateUserRequest(
-                null, "admin@example.com", "Ana", "Jovanovic", UserRole.ADMIN);
-        User mappedUser = new User("admin@example.com", "Ana", "Jovanovic", UserRole.ADMIN);
-        User savedUser = new User("admin@example.com", "Ana", "Jovanovic", UserRole.ADMIN);
+                null, ADMIN_EMAIL, ADMIN_FIRST_NAME, ADMIN_LAST_NAME, UserRole.ADMIN);
+        User mappedUser = new User(ADMIN_EMAIL, ADMIN_FIRST_NAME, ADMIN_LAST_NAME, UserRole.ADMIN);
+        User savedUser = new User(ADMIN_EMAIL, ADMIN_FIRST_NAME, ADMIN_LAST_NAME, UserRole.ADMIN);
         UserResponse expectedResponse = new UserResponse(
-                1L, "admin@example.com", "Ana", "Jovanovic", UserRole.ADMIN,
+                1L, ADMIN_EMAIL, ADMIN_FIRST_NAME, ADMIN_LAST_NAME, UserRole.ADMIN,
                 true, null, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
 
         when(userMapper.toEntity(request)).thenReturn(mappedUser);
@@ -127,7 +134,7 @@ class UserServiceTest {
     void createUser_shouldThrowExceptionWhenAdminHasCompanyId() {
         // given
         CreateUserRequest request = new CreateUserRequest(
-                1L, "admin@example.com", "Ana", "Jovanovic", UserRole.ADMIN);
+                1L, ADMIN_EMAIL, ADMIN_FIRST_NAME, ADMIN_LAST_NAME, UserRole.ADMIN);
 
         // when / then
         assertThatThrownBy(() -> userService.createUser(request))
@@ -142,7 +149,7 @@ class UserServiceTest {
     void createUser_shouldThrowExceptionWhenCompanyUserHasNoCompanyId() {
         // given
         CreateUserRequest request = new CreateUserRequest(
-                null, "marko@example.com", "Marko", "Petrovic", UserRole.COMPANY_USER);
+                null, COMPANY_USER_EMAIL, COMPANY_USER_FIRST_NAME, COMPANY_USER_LAST_NAME, UserRole.COMPANY_USER);
 
         // when / then
         assertThatThrownBy(() -> userService.createUser(request))
@@ -158,8 +165,8 @@ class UserServiceTest {
     void createUser_shouldThrowExceptionWhenCompanyNotFound() {
         // given
         CreateUserRequest request = new CreateUserRequest(
-                999L, "marko@example.com", "Marko", "Petrovic", UserRole.COMPANY_USER);
-        User mappedUser = new User("marko@example.com", "Marko", "Petrovic", UserRole.COMPANY_USER);
+                999L, COMPANY_USER_EMAIL, COMPANY_USER_FIRST_NAME, COMPANY_USER_LAST_NAME, UserRole.COMPANY_USER);
+        User mappedUser = new User(COMPANY_USER_EMAIL, COMPANY_USER_FIRST_NAME, COMPANY_USER_LAST_NAME, UserRole.COMPANY_USER);
 
         when(userMapper.toEntity(request)).thenReturn(mappedUser);
         when(companyRepository.findById(999L)).thenReturn(Optional.empty());
@@ -176,8 +183,8 @@ class UserServiceTest {
     void createUser_shouldThrowExceptionWhenEmailAlreadyExists() {
         // given
         CreateUserRequest request = new CreateUserRequest(
-                null, "admin@example.com", "Ana", "Jovanovic", UserRole.ADMIN);
-        User mappedUser = new User("admin@example.com", "Ana", "Jovanovic", UserRole.ADMIN);
+                null, ADMIN_EMAIL, ADMIN_FIRST_NAME, ADMIN_LAST_NAME, UserRole.ADMIN);
+        User mappedUser = new User(ADMIN_EMAIL, ADMIN_FIRST_NAME, ADMIN_LAST_NAME, UserRole.ADMIN);
 
         when(userMapper.toEntity(request)).thenReturn(mappedUser);
         when(userRepository.saveAndFlush(mappedUser))
@@ -186,6 +193,6 @@ class UserServiceTest {
         // when / then
         assertThatThrownBy(() -> userService.createUser(request))
                 .isInstanceOf(UserAlreadyExistsException.class)
-                .hasMessageContaining("admin@example.com");
+                .hasMessageContaining(ADMIN_EMAIL);
     }
 }

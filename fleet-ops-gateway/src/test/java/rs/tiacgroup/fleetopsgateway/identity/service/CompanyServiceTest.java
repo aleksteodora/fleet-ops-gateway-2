@@ -33,6 +33,9 @@ import static org.mockito.Mockito.*;
 class CompanyServiceTest {
 
     private static final LocalDateTime FIXED_TIMESTAMP = LocalDateTime.of(2026, 1, 1, 12, 0);
+    private static final String TEST_COMPANY_NAME = "Test Company";
+    private static final String NEW_COMPANY_NAME = "New Company";
+    private static final String OLD_COMPANY_NAME = "Old Name";
 
     @Mock
     private CompanyRepository companyRepository;
@@ -46,9 +49,9 @@ class CompanyServiceTest {
     @Test
     void listCompanies_shouldReturnMappedPage() {
         // given
-        Company company = new Company("Test Company");
+        Company company = new Company(TEST_COMPANY_NAME);
         CompanyResponse response = new CompanyResponse(
-                1L, "Test Company", true, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
+                1L, TEST_COMPANY_NAME, true, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
         Pageable pageable = PageRequest.of(0, 10);
         Page<Company> companyPage = new PageImpl<>(List.of(company), pageable, 1);
 
@@ -68,11 +71,11 @@ class CompanyServiceTest {
     @Test
     void createCompany_shouldSaveAndReturnMappedResponse() {
         // given
-        CreateCompanyRequest request = new CreateCompanyRequest("New Company");
-        Company mappedCompany = new Company("New Company");
-        Company savedCompany = new Company("New Company");
+        CreateCompanyRequest request = new CreateCompanyRequest(NEW_COMPANY_NAME);
+        Company mappedCompany = new Company(NEW_COMPANY_NAME);
+        Company savedCompany = new Company(NEW_COMPANY_NAME);
         CompanyResponse expectedResponse = new CompanyResponse(
-                1L, "New Company", true, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
+                1L, NEW_COMPANY_NAME, true, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
 
         when(companyMapper.toEntity(request)).thenReturn(mappedCompany);
         when(companyRepository.saveAndFlush(mappedCompany)).thenReturn(savedCompany);
@@ -89,14 +92,14 @@ class CompanyServiceTest {
     @Test
     void createCompany_shouldSetActiveTrueBeforeSaving() {
         // given
-        CreateCompanyRequest request = new CreateCompanyRequest("New Company");
-        Company mappedCompany = new Company("New Company");
-        Company savedCompany = new Company("New Company");
+        CreateCompanyRequest request = new CreateCompanyRequest(NEW_COMPANY_NAME);
+        Company mappedCompany = new Company(NEW_COMPANY_NAME);
+        Company savedCompany = new Company(NEW_COMPANY_NAME);
 
         when(companyMapper.toEntity(request)).thenReturn(mappedCompany);
         when(companyRepository.saveAndFlush(any(Company.class))).thenReturn(savedCompany);
         when(companyMapper.toResponse(savedCompany)).thenReturn(
-                new CompanyResponse(1L, "New Company", true, FIXED_TIMESTAMP, FIXED_TIMESTAMP));
+                new CompanyResponse(1L, NEW_COMPANY_NAME, true, FIXED_TIMESTAMP, FIXED_TIMESTAMP));
 
         ArgumentCaptor<Company> companyCaptor = ArgumentCaptor.forClass(Company.class);
 
@@ -128,9 +131,9 @@ class CompanyServiceTest {
     void getCompanyById_shouldReturnMappedResponseWhenFound() {
         // given
         Long id = 1L;
-        Company company = new Company("Test Company");
+        Company company = new Company(TEST_COMPANY_NAME);
         CompanyResponse response = new CompanyResponse(
-                id, "Test Company", true, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
+                id, TEST_COMPANY_NAME, true, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
 
         when(companyRepository.findById(id)).thenReturn(Optional.of(company));
         when(companyMapper.toResponse(company)).thenReturn(response);
@@ -163,7 +166,7 @@ class CompanyServiceTest {
         // given
         Long id = 1L;
         UpdateCompanyRequest request = new UpdateCompanyRequest("Updated Name");
-        Company existingCompany = new Company("Old Name");
+        Company existingCompany = new Company(OLD_COMPANY_NAME);
         CompanyResponse expectedResponse = new CompanyResponse(
                 id, "Updated Name", true, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
 
@@ -201,7 +204,7 @@ class CompanyServiceTest {
         // given
         Long id = 1L;
         UpdateCompanyRequest request = new UpdateCompanyRequest("Taken Name");
-        Company existingCompany = new Company("Old Name");
+        Company existingCompany = new Company(OLD_COMPANY_NAME);
 
         when(companyRepository.findById(id)).thenReturn(Optional.of(existingCompany));
         when(companyRepository.saveAndFlush(existingCompany))
@@ -217,7 +220,7 @@ class CompanyServiceTest {
     void deactivateCompany_shouldSetActiveFalseAndSave() {
         // given
         Long id = 1L;
-        Company company = new Company("Test Company");
+        Company company = new Company(TEST_COMPANY_NAME);
         when(companyRepository.findById(id)).thenReturn(Optional.of(company));
 
         // when
