@@ -5,5 +5,6 @@ public enum VehicleStatus {
     DAMAGED,
     STOLEN,
     SCRAPPED,
-    INACTIVE
+    INACTIVE,
+    NO_VALUE
 }
