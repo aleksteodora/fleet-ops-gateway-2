@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import rs.tiacgroup.fleetopsgateway.identity.dto.request.CreateCompanyRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.request.UpdateCompanyRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.CompanyResponse;
+import rs.tiacgroup.fleetopsgateway.identity.dto.response.UserResponse;
 import rs.tiacgroup.fleetopsgateway.identity.service.CompanyService;
 
 @RestController
@@ -49,5 +50,12 @@ public class CompanyController {
     public ResponseEntity<Void> deactivateCompany(@PathVariable Long id) {
         companyService.deactivateCompany(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{companyId}/users")
+    public Page<UserResponse> getUsersByCompany(
+            @PathVariable Long companyId,
+            @PageableDefault(sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+        return companyService.getUsersByCompany(companyId, pageable);
     }
 }

@@ -7,24 +7,32 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rs.tiacgroup.fleetopsgateway.identity.dto.CompanyMapper;
+import rs.tiacgroup.fleetopsgateway.identity.dto.UserMapper;
 import rs.tiacgroup.fleetopsgateway.identity.dto.request.CreateCompanyRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.request.UpdateCompanyRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.CompanyResponse;
+import rs.tiacgroup.fleetopsgateway.identity.dto.response.UserResponse;
 import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
 import rs.tiacgroup.fleetopsgateway.identity.exception.CompanyAlreadyExistsException;
 import rs.tiacgroup.fleetopsgateway.identity.exception.CompanyNotFoundException;
 import rs.tiacgroup.fleetopsgateway.identity.repository.CompanyRepository;
+import rs.tiacgroup.fleetopsgateway.identity.repository.UserRepository;
 
 @Service
 @Slf4j
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
+    private final UserRepository userRepository;
     private final CompanyMapper companyMapper;
+    private final UserMapper userMapper;
 
-    public CompanyService(CompanyRepository companyRepository, CompanyMapper companyMapper) {
+    public CompanyService(CompanyRepository companyRepository, UserRepository userRepository,
+                          CompanyMapper companyMapper, UserMapper userMapper) {
         this.companyRepository = companyRepository;
+        this.userRepository = userRepository;
         this.companyMapper = companyMapper;
+        this.userMapper = userMapper;
     }
 
     public Page<CompanyResponse> listCompanies(Pageable pageable) {
@@ -92,5 +100,17 @@ public class CompanyService {
         companyRepository.save(company);
 
         log.info("Company deactivated successfully, id={}", id);
+    }
+
+    public Page<UserResponse> getUsersByCompany(Long companyId, Pageable pageable) {
+        log.debug("Fetching users for company id={} page={} size={}",
+                companyId, pageable.getPageNumber(), pageable.getPageSize());
+
+        if (!companyRepository.existsById(companyId)) {
+            throw new CompanyNotFoundException("Company with id " + companyId + " not found");
+        }
+
+        return userRepository.findByCompanyId(companyId, pageable)
+                .map(userMapper::toResponse);
     }
 }
