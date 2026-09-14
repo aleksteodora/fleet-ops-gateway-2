@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
+import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
 import rs.tiacgroup.fleetopsgateway.identity.entity.User;
 import rs.tiacgroup.fleetopsgateway.identity.entity.UserRole;
 
@@ -20,6 +21,9 @@ class UserRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CompanyRepository companyRepository;
 
     @Test
     void findAll_shouldReturnPagedUsersInCorrectOrder() {
@@ -48,5 +52,27 @@ class UserRepositoryTest {
         // when / then
         assertThatThrownBy(() -> userRepository.saveAndFlush(duplicate))
                 .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
+    void findByCompanyId_shouldReturnOnlyUsersFromThatCompany() {
+        // given
+        Company company = companyRepository.saveAndFlush(new Company("Test Company"));
+        Company otherCompany = companyRepository.saveAndFlush(new Company("Other Company"));
+
+        User user1 = new User("user1@example.com", "First", "User", UserRole.COMPANY_USER);
+        user1.setCompany(company);
+        userRepository.save(user1);
+
+        User user2 = new User("user2@example.com", "Second", "User", UserRole.COMPANY_USER);
+        user2.setCompany(otherCompany);
+        userRepository.save(user2);
+
+        // when
+        Page<User> result = userRepository.findByCompanyId(company.getId(), PageRequest.of(0, 10));
+
+        // then
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().getFirst().getEmail()).isEqualTo("user1@example.com");
     }
 }

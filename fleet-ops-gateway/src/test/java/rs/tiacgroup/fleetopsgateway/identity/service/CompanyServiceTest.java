@@ -12,17 +12,22 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import rs.tiacgroup.fleetopsgateway.identity.dto.CompanyMapper;
+import rs.tiacgroup.fleetopsgateway.identity.dto.UserMapper;
 import rs.tiacgroup.fleetopsgateway.identity.dto.request.CreateCompanyRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.request.UpdateCompanyRequest;
 import rs.tiacgroup.fleetopsgateway.identity.dto.response.CompanyResponse;
+import rs.tiacgroup.fleetopsgateway.identity.dto.response.UserResponse;
 import rs.tiacgroup.fleetopsgateway.identity.entity.Company;
+import rs.tiacgroup.fleetopsgateway.identity.entity.User;
+import rs.tiacgroup.fleetopsgateway.identity.entity.UserRole;
 import rs.tiacgroup.fleetopsgateway.identity.exception.CompanyAlreadyExistsException;
-import rs.tiacgroup.fleetopsgateway.identity.repository.CompanyRepository;
-import java.util.Optional;
 import rs.tiacgroup.fleetopsgateway.identity.exception.CompanyNotFoundException;
+import rs.tiacgroup.fleetopsgateway.identity.repository.CompanyRepository;
+import rs.tiacgroup.fleetopsgateway.identity.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -36,12 +41,21 @@ class CompanyServiceTest {
     private static final String TEST_COMPANY_NAME = "Test Company";
     private static final String NEW_COMPANY_NAME = "New Company";
     private static final String OLD_COMPANY_NAME = "Old Name";
+    private static final String COMPANY_USER_EMAIL = "marko@example.com";
+    private static final String COMPANY_USER_FIRST_NAME = "Marko";
+    private static final String COMPANY_USER_LAST_NAME = "Petrovic";
 
     @Mock
     private CompanyRepository companyRepository;
 
     @Mock
     private CompanyMapper companyMapper;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private UserMapper userMapper;
 
     @InjectMocks
     private CompanyService companyService;
@@ -243,5 +257,45 @@ class CompanyServiceTest {
                 .hasMessageContaining("999");
 
         verify(companyRepository, never()).save(any());
+    }
+
+    @Test
+    void getUsersByCompany_shouldReturnMappedPageWhenCompanyExists() {
+        // given
+        Long companyId = 1L;
+        User user = new User(COMPANY_USER_EMAIL, COMPANY_USER_FIRST_NAME, COMPANY_USER_LAST_NAME, UserRole.COMPANY_USER);
+        UserResponse response = new UserResponse(
+                1L, COMPANY_USER_EMAIL, COMPANY_USER_FIRST_NAME, COMPANY_USER_LAST_NAME, UserRole.COMPANY_USER,
+                true, TEST_COMPANY_NAME, FIXED_TIMESTAMP, FIXED_TIMESTAMP);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<User> userPage = new PageImpl<>(List.of(user), pageable, 1);
+
+        when(companyRepository.existsById(companyId)).thenReturn(true);
+        when(userRepository.findByCompanyId(companyId, pageable)).thenReturn(userPage);
+        when(userMapper.toResponse(user)).thenReturn(response);
+
+        // when
+        Page<UserResponse> result = companyService.getUsersByCompany(companyId, pageable);
+
+        // then
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().getFirst()).isEqualTo(response);
+        verify(userRepository).findByCompanyId(companyId, pageable);
+        verify(userMapper).toResponse(user);
+    }
+
+    @Test
+    void getUsersByCompany_shouldThrowExceptionWhenCompanyNotFound() {
+        // given
+        Long companyId = 999L;
+        Pageable pageable = PageRequest.of(0, 10);
+        when(companyRepository.existsById(companyId)).thenReturn(false);
+
+        // when / then
+        assertThatThrownBy(() -> companyService.getUsersByCompany(companyId, pageable))
+                .isInstanceOf(CompanyNotFoundException.class)
+                .hasMessageContaining("999");
+
+        verify(userRepository, never()).findByCompanyId(any(), any());
     }
 }
