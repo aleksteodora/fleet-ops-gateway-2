@@ -1,23 +1,24 @@
 package rs.tiacgroup.fleetopsgateway.vehiclesearch.config;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 
 @Configuration
+@EnableConfigurationProperties(ProviderProperties.class)
 public class RestClientConfig {
 
     @Bean
     @Qualifier("freeProviderRestClient")
-    public RestClient freeProviderRestClient(@Value("${provider.free.base-url}") String baseUrl) {
-        return RestClient.builder().baseUrl(baseUrl).build();
+    public RestClient freeProviderRestClient(ProviderProperties providerProperties) {
+        return RestClient.builder().baseUrl(providerProperties.free().baseUrl()).build();
     }
 
     @Bean
     @Qualifier("premiumProviderRestClient")
-    public RestClient premiumProviderRestClient(@Value("${provider.premium.base-url}") String baseUrl) {
-        return RestClient.builder().baseUrl(baseUrl).build();
+    public RestClient premiumProviderRestClient(ProviderProperties providerProperties) {
+        return RestClient.builder().baseUrl(providerProperties.premium().baseUrl()).build();
     }
 }
