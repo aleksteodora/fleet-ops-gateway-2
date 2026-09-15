@@ -60,4 +60,40 @@ class VehicleResponseMapperTest {
         // then
         assertThat(actual).isEqualTo(expected);
     }
+
+    @Test
+    void toVehicleData_shouldMapUnrecognizedFuelTypeToNoValue() {
+        // given
+        FreeProviderResponse response = new FreeProviderResponse(
+                MAKE, MODEL, MODEL_YEAR, "HYBRID", ENGINE, VEHICLE_STATUS_RAW);
+
+        // when
+        VehicleData actual = vehicleResponseMapper.toVehicleData(response);
+
+        // then
+        assertThat(actual.make()).isEqualTo(MAKE);
+        assertThat(actual.model()).isEqualTo(MODEL);
+        assertThat(actual.modelYear()).isEqualTo(MODEL_YEAR);
+        assertThat(actual.engine()).isEqualTo(ENGINE);
+        assertThat(actual.vehicleStatus()).isEqualTo(VEHICLE_STATUS);
+        assertThat(actual.fuelType()).isEqualTo(FuelType.NO_VALUE);
+    }
+
+    @Test
+    void toVehicleData_shouldMapUnrecognizedVehicleStatusToNoValue() {
+        // given
+        FreeProviderResponse response = new FreeProviderResponse(
+                MAKE, MODEL, MODEL_YEAR, FUEL_TYPE_RAW, ENGINE, "IMPOUNDED");
+
+        // when
+        VehicleData actual = vehicleResponseMapper.toVehicleData(response);
+
+        // then
+        assertThat(actual.make()).isEqualTo(MAKE);
+        assertThat(actual.model()).isEqualTo(MODEL);
+        assertThat(actual.modelYear()).isEqualTo(MODEL_YEAR);
+        assertThat(actual.engine()).isEqualTo(ENGINE);
+        assertThat(actual.fuelType()).isEqualTo(FUEL_TYPE);
+        assertThat(actual.vehicleStatus()).isEqualTo(VehicleStatus.NO_VALUE);
+    }
 }
