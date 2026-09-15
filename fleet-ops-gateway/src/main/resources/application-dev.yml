@@ -41,3 +41,9 @@ logging:
     rs.tiacgroup.fleetopsgateway: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] [%X{traceId}] %-5level %logger - %msg%n"
+
+provider:
+  free:
+    base-url: http://localhost:8081/free-third-party
+  premium:
+    base-url: http://localhost:8081/premium-third-party
