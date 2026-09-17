@@ -7,10 +7,10 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-login',
   imports: [ReactiveFormsModule, RouterLink],
-  templateUrl: './login.html',
-  styleUrl: './login.scss',
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.scss',
 })
-export class Login {
+export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);

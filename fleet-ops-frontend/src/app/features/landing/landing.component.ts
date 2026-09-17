@@ -16,10 +16,10 @@ import { RouterLink } from '@angular/router';
     LucideCircleCheckBig,
     LucideLockKeyhole
   ],
-  templateUrl: './landing.html',
-  styleUrl: './landing.scss'
+  templateUrl: './landing.component.html',
+  styleUrl: './landing.component.scss'
 })
-export class Landing implements AfterViewInit {
+export class LandingComponent implements AfterViewInit {
   @ViewChild('carReveal') carReveal!: ElementRef<HTMLElement>;
 
   ngAfterViewInit(): void {
