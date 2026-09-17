@@ -1,0 +1,122 @@
+<div class="users-page">
+  <nav class="navbar">
+    <a routerLink="/" class="logo">
+      <div class="logo-mark">FG</div>
+      FleetOps Gateway
+    </a>
+  </nav>
+
+  <div class="users-container">
+    <div class="page-header">
+      <h1>Users</h1>
+      <p class="subtitle">Manage all users across every company.</p>
+    </div>
+
+    <div class="toolbar">
+      <div class="filter-group">
+        <label for="companyFilter">Filter by company</label>
+        <select id="companyFilter" (change)="onCompanyFilterChange($any($event.target).value)">
+          <option value="">All companies</option>
+          @for (company of companies(); track company.id) {
+            <option [value]="company.id">{{ company.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="sort-group">
+        <button
+          class="sort-btn"
+          [class.active]="sortField() === 'firstName'"
+          (click)="onSortChange('firstName')"
+        >
+          First name {{ sortField() === 'firstName' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
+        </button>
+        <button
+          class="sort-btn"
+          [class.active]="sortField() === 'lastName'"
+          (click)="onSortChange('lastName')"
+        >
+          Last name {{ sortField() === 'lastName' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
+        </button>
+        <button
+          class="sort-btn"
+          [class.active]="sortField() === 'role'"
+          (click)="onSortChange('role')"
+        >
+          Role {{ sortField() === 'role' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
+        </button>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="state-message">Loading users...</div>
+    }
+
+    @if (errorMessage()) {
+      <div class="state-message error">{{ errorMessage() }}</div>
+    }
+
+    @if (!isLoading() && !errorMessage()) {
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>First name</th>
+              <th>Last name</th>
+              <th>Email</th>
+              <th>Company</th>
+              <th>Role</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users(); track user.id) {
+              <tr>
+                <td>{{ user.firstName }}</td>
+                <td>{{ user.lastName }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.companyName ?? '-' }}</td>
+                <td>
+                  <span class="role-badge" [class.admin]="user.role === 'ADMIN'">
+                    {{ user.role }}
+                  </span>
+                </td>
+                <td>
+                  <span class="status-badge" [class.inactive]="!user.active">
+                    {{ user.active ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="empty-cell">No users found.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (totalPages() > 1) {
+        <div class="pagination">
+          <button
+            class="page-nav-btn"
+            [disabled]="currentPage() === 0"
+            (click)="onPreviousPage()"
+          >
+            ← Previous
+          </button>
+
+          <span class="page-info">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+
+          <button
+            class="page-nav-btn"
+            [disabled]="currentPage() === totalPages() - 1"
+            (click)="onNextPage()"
+          >
+            Next →
+          </button>
+        </div>
+      }
+    }
+  </div>
+</div>
