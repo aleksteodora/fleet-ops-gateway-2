@@ -1,0 +1,95 @@
+<div class="companies-page">
+  <nav class="navbar">
+    <a routerLink="/" class="logo">
+      <div class="logo-mark">FG</div>
+      FleetOps Gateway
+    </a>
+  </nav>
+
+  <div class="companies-container">
+    <div class="page-header">
+      <h1>Companies</h1>
+      <p class="subtitle">Manage all companies using FleetOps Gateway.</p>
+    </div>
+
+    <div class="toolbar">
+      <div class="sort-group">
+        <button
+          class="sort-btn"
+          [class.active]="sortField() === 'name'"
+          (click)="onSortChange('name')"
+        >
+          Name {{ sortField() === 'name' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
+        </button>
+        <button
+          class="sort-btn"
+          [class.active]="sortField() === 'createdAt'"
+          (click)="onSortChange('createdAt')"
+        >
+          Date created {{ sortField() === 'createdAt' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
+        </button>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="state-message">Loading companies...</div>
+    }
+
+    @if (errorMessage()) {
+      <div class="state-message error">{{ errorMessage() }}</div>
+    }
+
+    @if (!isLoading() && !errorMessage()) {
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Date created</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (company of companies(); track company.id) {
+              <tr>
+                <td>{{ company.name }}</td>
+                <td>{{ company.createdAt | date: 'mediumDate' }}</td>
+                <td>
+                  <span class="status-badge" [class.inactive]="!company.active">
+                    {{ company.active ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="empty-cell">No companies found.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (totalPages() > 1) {
+        <div class="pagination">
+          <button
+            class="page-nav-btn"
+            [disabled]="currentPage() === 0"
+            (click)="onPreviousPage()"
+          >
+            ← Previous
+          </button>
+
+          <span class="page-info">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+
+          <button
+            class="page-nav-btn"
+            [disabled]="currentPage() === totalPages() - 1"
+            (click)="onNextPage()"
+          >
+            Next →
+          </button>
+        </div>
+      }
+    }
+  </div>
+</div>
