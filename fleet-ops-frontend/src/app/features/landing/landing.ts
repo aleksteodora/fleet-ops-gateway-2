@@ -1,9 +1,11 @@
 import { Component, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
 import { LucideFileText, LucideShield, LucideCar, LucideWrench, LucideBuilding2, LucideZap, LucideRefreshCw, LucideCircleCheckBig, LucideLockKeyhole } from '@lucide/angular';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-landing',
   imports: [
+    RouterLink,
     LucideFileText,
     LucideShield,
     LucideCar,
