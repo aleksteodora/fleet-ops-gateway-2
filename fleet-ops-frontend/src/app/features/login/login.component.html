@@ -47,9 +47,9 @@
           <div class="form-error">{{ errorMessage() }}</div>
         }
 
-        <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
-          {{ isSubmitting() ? 'Logging in...' : 'Log in' }}
-        </button>
+        <button type="submit" class="btn-primary" [disabled]="loginForm.invalid || isSubmitting()">
+  {{ isSubmitting() ? 'Logging in...' : 'Log in' }}
+</button>
       </form>
     </div>
   </div>
