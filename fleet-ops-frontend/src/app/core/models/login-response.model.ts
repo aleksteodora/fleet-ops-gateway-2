@@ -1,5 +1,5 @@
 export interface LoginResponse {
-  userId: number;
-  companyId: number | null;
-  role: 'ADMIN' | 'COMPANY_USER';
+  readonly userId: number;
+  readonly companyId: number | null;
+  readonly role: 'ADMIN' | 'COMPANY_USER';
 }

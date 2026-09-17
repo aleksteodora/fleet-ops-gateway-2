@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { catchError, of, tap } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -34,16 +35,20 @@ export class Login {
 
     const { email, password } = this.loginForm.getRawValue();
 
-    this.authService.login({ email: email!, password: password! }).subscribe({
-      next: () => {
-        this.isSubmitting.set(false);
-        this.router.navigate(['/']);
-      },
-      error: () => {
-        this.isSubmitting.set(false);
-        this.errorMessage.set('Invalid email or password.');
-      },
-    });
+    this.authService
+      .login({ email: email!, password: password! })
+      .pipe(
+        tap(() => {
+          this.isSubmitting.set(false);
+          this.router.navigate(['/']);
+        }),
+        catchError(() => {
+          this.isSubmitting.set(false);
+          this.errorMessage.set('Invalid email or password.');
+          return of(null);
+        })
+      )
+      .subscribe();
   }
 
   togglePasswordVisibility(): void {
