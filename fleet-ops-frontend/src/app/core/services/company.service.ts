@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Company } from '../models/company.model';
 import { PagedResponse } from '../models/paged-response.model';
+import { CreateCompanyRequest } from '../models/create-company-request.model';
+import { UpdateCompanyRequest } from '../models/update-company-request.model';
 
 export interface CompanyQueryParams {
   page?: number;
@@ -26,5 +28,17 @@ export class CompanyService {
     }
 
     return this.http.get<PagedResponse<Company>>(`${environment.apiUrl}/companies`, { params: httpParams });
+  }
+
+  createCompany(request: CreateCompanyRequest): Observable<Company> {
+    return this.http.post<Company>(`${environment.apiUrl}/companies`, request);
+  }
+
+  updateCompany(id: number, request: UpdateCompanyRequest): Observable<Company> {
+    return this.http.put<Company>(`${environment.apiUrl}/companies/${id}`, request);
+  }
+
+  deactivateCompany(id: number): Observable<void> {
+    return this.http.patch<void>(`${environment.apiUrl}/companies/${id}`, null);
   }
 }
