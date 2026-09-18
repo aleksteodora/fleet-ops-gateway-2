@@ -12,111 +12,185 @@
       <p class="subtitle">Manage all users across every company.</p>
     </div>
 
-    <div class="toolbar">
-      <div class="filter-group">
-        <label for="companyFilter">Filter by company</label>
-        <select id="companyFilter" (change)="onCompanyFilterChange($any($event.target).value)">
-          <option value="">All companies</option>
-          @for (company of companies(); track company.id) {
-            <option [value]="company.id">{{ company.name }}</option>
-          }
-        </select>
+    <div class="layout">
+      <div class="form-panel">
+        <h2>{{ formMode() === 'add' ? 'New user' : 'Edit user' }}</h2>
+
+        @if (formMode() === 'add') {
+          <form [formGroup]="addUserForm" (ngSubmit)="onSubmitForm()">
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" type="text" formControlName="email" placeholder="user@company.com" />
+            </div>
+
+            <div class="field">
+              <label for="role">Role</label>
+              <select id="role" formControlName="role">
+                <option value="COMPANY_USER">Company user</option>
+                <option value="ADMIN">Admin</option>
+              </select>
+            </div>
+
+            @if (addUserForm.get('role')?.value === 'COMPANY_USER') {
+              <div class="field">
+                <label for="companyId">Company</label>
+                <select id="companyId" formControlName="companyId">
+                  <option [ngValue]="null">Select a company</option>
+                  @for (company of companies(); track company.id) {
+                    <option [ngValue]="company.id">{{ company.name }}</option>
+                  }
+                </select>
+              </div>
+            }
+
+            <div class="field">
+              <label for="firstName">First name</label>
+              <input id="firstName" type="text" formControlName="firstName" placeholder="First name" />
+            </div>
+
+            <div class="field">
+              <label for="lastName">Last name</label>
+              <input id="lastName" type="text" formControlName="lastName" placeholder="Last name" />
+            </div>
+
+            @if (formError()) {
+              <div class="form-error">{{ formError() }}</div>
+            }
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" [disabled]="addUserForm.invalid || isSubmittingForm()">
+                {{ isSubmittingForm() ? 'Saving...' : 'Add user' }}
+              </button>
+            </div>
+          </form>
+        } @else {
+          <form [formGroup]="editUserForm" (ngSubmit)="onSubmitForm()">
+            <div class="field">
+              <label for="editFirstName">First name</label>
+              <input id="editFirstName" type="text" formControlName="firstName" placeholder="First name" />
+            </div>
+
+            <div class="field">
+              <label for="editLastName">Last name</label>
+              <input id="editLastName" type="text" formControlName="lastName" placeholder="Last name" />
+            </div>
+
+            @if (formError()) {
+              <div class="form-error">{{ formError() }}</div>
+            }
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" [disabled]="editUserForm.invalid || isSubmittingForm()">
+                {{ isSubmittingForm() ? 'Saving...' : 'Save changes' }}
+              </button>
+              <button type="button" class="btn-secondary" (click)="cancelEdit()">Cancel</button>
+            </div>
+          </form>
+        }
       </div>
 
-      <div class="sort-group">
-        <button
-          class="sort-btn"
-          [class.active]="sortField() === 'firstName'"
-          (click)="onSortChange('firstName')"
-        >
-          First name {{ sortField() === 'firstName' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
-        </button>
-        <button
-          class="sort-btn"
-          [class.active]="sortField() === 'lastName'"
-          (click)="onSortChange('lastName')"
-        >
-          Last name {{ sortField() === 'lastName' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
-        </button>
-        <button
-          class="sort-btn"
-          [class.active]="sortField() === 'role'"
-          (click)="onSortChange('role')"
-        >
-          Role {{ sortField() === 'role' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
-        </button>
+      <div class="list-panel">
+        <div class="toolbar">
+          <div class="filter-group">
+            <label for="companyFilter">Filter by company</label>
+            <select id="companyFilter" (change)="onCompanyFilterChange($any($event.target).value)">
+              <option value="">All companies</option>
+              @for (company of companies(); track company.id) {
+                <option [value]="company.id">{{ company.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="sort-group">
+            <button class="sort-btn" [class.active]="sortField() === 'firstName'" (click)="onSortChange('firstName')">
+              First name {{ sortField() === 'firstName' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
+            </button>
+            <button class="sort-btn" [class.active]="sortField() === 'lastName'" (click)="onSortChange('lastName')">
+              Last name {{ sortField() === 'lastName' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
+            </button>
+            <button class="sort-btn" [class.active]="sortField() === 'role'" (click)="onSortChange('role')">
+              Role {{ sortField() === 'role' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
+            </button>
+          </div>
+        </div>
+
+        @if (isLoading()) {
+          <div class="state-message">Loading users...</div>
+        }
+
+        @if (errorMessage()) {
+          <div class="state-message error">{{ errorMessage() }}</div>
+        }
+
+        @if (!isLoading() && !errorMessage()) {
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>First name</th>
+                  <th>Last name</th>
+                  <th>Email</th>
+                  <th>Company</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (user of users(); track user.id) {
+                  <tr>
+                    <td>{{ user.firstName }}</td>
+                    <td>{{ user.lastName }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.companyName ?? '-' }}</td>
+                    <td>
+                      <span class="role-badge" [class.admin]="user.role === 'ADMIN'">{{ user.role }}</span>
+                    </td>
+                    <td>
+                      <span class="status-badge" [class.inactive]="!user.active">
+                        {{ user.active ? 'Active' : 'Inactive' }}
+                      </span>
+                    </td>
+                    <td class="actions-cell">
+                      <button type="button" class="action-btn" (click)="startEdit(user)">Edit</button>
+                      @if (user.active) {
+                        <button type="button" class="action-btn danger" (click)="confirmDeactivate(user)">Deactivate</button>
+                      }
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="7" class="empty-cell">No users found.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          @if (totalPages() > 1) {
+            <div class="pagination">
+              <button class="page-nav-btn" [disabled]="currentPage() === 0" (click)="onPreviousPage()">← Previous</button>
+              <span class="page-info">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+              <button class="page-nav-btn" [disabled]="currentPage() === totalPages() - 1" (click)="onNextPage()">Next →</button>
+            </div>
+          }
+        }
       </div>
     </div>
+  </div>
 
-    @if (isLoading()) {
-      <div class="state-message">Loading users...</div>
-    }
-
-    @if (errorMessage()) {
-      <div class="state-message error">{{ errorMessage() }}</div>
-    }
-
-    @if (!isLoading() && !errorMessage()) {
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>First name</th>
-              <th>Last name</th>
-              <th>Email</th>
-              <th>Company</th>
-              <th>Role</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (user of users(); track user.id) {
-              <tr>
-                <td>{{ user.firstName }}</td>
-                <td>{{ user.lastName }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.companyName ?? '-' }}</td>
-                <td>
-                  <span class="role-badge" [class.admin]="user.role === 'ADMIN'">
-                    {{ user.role }}
-                  </span>
-                </td>
-                <td>
-                  <span class="status-badge" [class.inactive]="!user.active">
-                    {{ user.active ? 'Active' : 'Inactive' }}
-                  </span>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="6" class="empty-cell">No users found.</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-
-      @if (totalPages() > 1) {
-        <div class="pagination">
-          <button
-            class="page-nav-btn"
-            [disabled]="currentPage() === 0"
-            (click)="onPreviousPage()"
-          >
-            ← Previous
-          </button>
-
-          <span class="page-info">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
-
-          <button
-            class="page-nav-btn"
-            [disabled]="currentPage() === totalPages() - 1"
-            (click)="onNextPage()"
-          >
-            Next →
+  @if (userToDeactivate()) {
+    <div class="modal-overlay">
+      <div class="modal">
+        <h3>Deactivate user</h3>
+        <p>Are you sure you want to deactivate {{ userToDeactivate()!.firstName }} {{ userToDeactivate()!.lastName }}?</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="cancelDeactivate()">No</button>
+          <button type="button" class="btn-danger" [disabled]="isDeactivating()" (click)="deactivateUser()">
+            {{ isDeactivating() ? 'Deactivating...' : 'Yes, deactivate' }}
           </button>
         </div>
-      }
-    }
-  </div>
+      </div>
+    </div>
+  }
 </div>

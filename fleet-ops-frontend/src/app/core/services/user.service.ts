@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { User } from '../models/user.model';
 import { PagedResponse } from '../models/paged-response.model';
+import { CreateUserRequest } from '../models/create-user-request.model';
+import { UpdateUserRequest } from '../models/update-user-request.model';
 
 export interface UserQueryParams {
   page?: number;
@@ -32,4 +34,16 @@ export class UserService {
 
     return this.http.get<PagedResponse<User>>(url, { params: httpParams });
   }
+
+createUser(request: CreateUserRequest): Observable<User> {
+  return this.http.post<User>(`${environment.apiUrl}/users`, request);
+}
+
+updateUser(id: number, request: UpdateUserRequest): Observable<User> {
+  return this.http.put<User>(`${environment.apiUrl}/users/${id}`, request);
+}
+
+deactivateUser(id: number): Observable<void> {
+  return this.http.patch<void>(`${environment.apiUrl}/users/${id}`, null);
+}
 }
