@@ -1,0 +1,77 @@
+<div class="search-page">
+  <nav class="navbar">
+    <a routerLink="/" class="logo">
+      <div class="logo-mark">FG</div>
+      FleetOps Gateway
+    </a>
+  </nav>
+
+  <div class="search-container">
+    <h1>One search away from every answer about your vehicle</h1>
+
+    <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="search-form">
+      <div class="search-box">
+        <input
+          type="text"
+          formControlName="vin"
+          placeholder="Enter VIN of your vehicle"
+          class="search-input"
+        />
+        <button type="submit" class="search-btn" [disabled]="searchForm.invalid || isSearching()">
+          <svg lucideSearch></svg>
+        </button>
+      </div>
+
+      @if (searchForm.get('vin')?.invalid && searchForm.get('vin')?.touched) {
+        <span class="field-error">Please enter a VIN.</span>
+      }
+    </form>
+
+    @if (isSearching()) {
+      <div class="state-message">Searching...</div>
+    }
+
+    @if (errorMessage()) {
+      <div class="state-message error">{{ errorMessage() }}</div>
+    }
+
+    @if (result() && !isSearching()) {
+      @if (result()!.status === 'FOUND') {
+        <div class="result-card">
+          <div class="result-header">
+            <h2>{{ result()!.vehicleData!.make }} {{ result()!.vehicleData!.model }}</h2>
+            <button type="button" class="clear-btn" (click)="onClear()">Clear</button>
+          </div>
+          <div class="result-grid">
+            <div class="result-item">
+              <span class="label">Model year</span>
+              <span class="value">{{ result()!.vehicleData!.modelYear }}</span>
+            </div>
+            <div class="result-item">
+              <span class="label">Fuel type</span>
+              <span class="value">{{ result()!.vehicleData!.fuelType }}</span>
+            </div>
+            <div class="result-item">
+              <span class="label">Engine</span>
+              <span class="value">{{ result()!.vehicleData!.engine }}</span>
+            </div>
+            <div class="result-item">
+              <span class="label">Status</span>
+              <span class="value">{{ result()!.vehicleData!.vehicleStatus }}</span>
+            </div>
+          </div>
+        </div>
+      } @else if (result()!.status === 'NO_RESULTS') {
+        <div class="result-card empty">
+          <p>No data found for this VIN.</p>
+          <button type="button" class="clear-btn" (click)="onClear()">Try another VIN</button>
+        </div>
+      } @else {
+        <div class="result-card empty">
+          <p>Our data providers are currently unavailable. Please try again shortly.</p>
+          <button type="button" class="clear-btn" (click)="onClear()">Try again</button>
+        </div>
+      }
+    }
+  </div>
+</div>

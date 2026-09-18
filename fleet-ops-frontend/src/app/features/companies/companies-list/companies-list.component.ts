@@ -23,7 +23,7 @@ export class CompaniesListComponent {
 
   readonly currentPage = signal(0);
   readonly totalPages = signal(0);
-  readonly pageSize = 20;
+  readonly pageSize = 15;
 
   readonly sortField = signal<SortField>('name');
   readonly sortDirection = signal<SortDirection>('asc');

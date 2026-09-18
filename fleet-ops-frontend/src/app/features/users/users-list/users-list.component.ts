@@ -26,7 +26,7 @@ export class UsersListComponent {
 
   readonly currentPage = signal(0);
   readonly totalPages = signal(0);
-  readonly pageSize = 20;
+  readonly pageSize = 15;
 
   readonly sortField = signal<SortField>('firstName');
   readonly sortDirection = signal<SortDirection>('asc');

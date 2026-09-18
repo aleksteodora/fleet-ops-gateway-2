@@ -20,7 +20,7 @@ export class UserService {
   getUsers(params: UserQueryParams): Observable<PagedResponse<User>> {
     let httpParams = new HttpParams()
       .set('page', params.page ?? 0)
-      .set('size', params.size ?? 20);
+      .set('size', params.size ?? 15);
 
     if (params.sortBy) {
       httpParams = httpParams.set('sort', `${params.sortBy},${params.sortDirection ?? 'asc'}`);

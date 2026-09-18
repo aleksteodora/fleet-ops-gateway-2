@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { adminGuard } from './core/guards/admin.guard';
+import { companyUserGuard } from './core/guards/company-user.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'landing', pathMatch: 'full' },
@@ -24,5 +25,11 @@ export const routes: Routes = [
   canActivate: [adminGuard],
   loadChildren: () =>
     import('./features/companies/companies.routes').then((m) => m.COMPANIES_ROUTES),
+},
+{
+  path: 'vehicle-search',
+  canActivate: [companyUserGuard],
+  loadChildren: () =>
+    import('./features/vehicle-search/vehicle-search.routes').then((m) => m.VEHICLE_SEARCH_ROUTES),
 },
 ];
