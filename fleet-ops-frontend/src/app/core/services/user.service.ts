@@ -46,4 +46,8 @@ updateUser(id: number, request: UpdateUserRequest): Observable<User> {
 deactivateUser(id: number): Observable<void> {
   return this.http.patch<void>(`${environment.apiUrl}/users/${id}`, null);
 }
+
+getUserById(id: number): Observable<User> {
+  return this.http.get<User>(`${environment.apiUrl}/users/${id}`);
+}
 }

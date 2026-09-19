@@ -48,4 +48,13 @@ export class AuthService {
     const raw = localStorage.getItem(STORAGE_KEY);
     return raw ? JSON.parse(raw) : null;
   }
+
+  updateCurrentUserName(firstName: string, lastName: string): void {
+  const current = this.currentUser();
+  if (!current) return;
+
+  const updated: CurrentUser = { ...current, firstName, lastName };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  this.currentUser.set(updated);
+}
 }
