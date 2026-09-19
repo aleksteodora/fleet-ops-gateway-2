@@ -15,16 +15,10 @@ export const routes: Routes = [
       import('./features/login/login.routes').then((m) => m.LOGIN_ROUTES),
   },
   {
-    path: 'users',
-    canActivate: [adminGuard],
-    loadChildren: () =>
-      import('./features/users/users.routes').then((m) => m.USERS_ROUTES),
-  },
-  {
-  path: 'companies',
+  path: 'admin',
   canActivate: [adminGuard],
   loadChildren: () =>
-    import('./features/companies/companies.routes').then((m) => m.COMPANIES_ROUTES),
+    import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
 },
 {
   path: 'vehicle-search',

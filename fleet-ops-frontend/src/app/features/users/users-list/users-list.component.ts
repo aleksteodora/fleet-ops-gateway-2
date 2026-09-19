@@ -1,6 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
 import { catchError, finalize, of, tap } from 'rxjs';
-import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserService } from '../../../core/services/user.service';
 import { CompanyService } from '../../../core/services/company.service';
@@ -13,7 +12,7 @@ type FormMode = 'add' | 'edit';
 
 @Component({
   selector: 'app-users-list',
-  imports: [RouterLink, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './users-list.component.html',
   styleUrl: './users-list.component.scss',
 })

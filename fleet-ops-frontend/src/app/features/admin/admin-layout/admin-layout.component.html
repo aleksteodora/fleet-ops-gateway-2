@@ -1,0 +1,23 @@
+<div class="admin-layout">
+  <header class="admin-header">
+    <div class="header-top">
+      <h1>Admin Panel</h1>
+
+      <div class="user-info">
+        @if (currentUser()) {
+          <span class="user-name">{{ currentUser()!.firstName }} {{ currentUser()!.lastName }}</span>
+        }
+        <button type="button" class="logout-btn" (click)="onLogout()">Log out</button>
+      </div>
+    </div>
+
+    <nav class="admin-tabs">
+      <a routerLink="users" routerLinkActive="active" class="tab-link">Users</a>
+      <a routerLink="companies" routerLinkActive="active" class="tab-link">Companies</a>
+    </nav>
+  </header>
+
+  <main class="admin-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

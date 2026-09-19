@@ -38,9 +38,10 @@ export class LoginComponent {
     this.authService
       .login({ email: email!, password: password! })
       .pipe(
-        tap(() => {
+        tap((currentUser) => {
           this.isSubmitting.set(false);
-          this.router.navigate(['/']);
+          const destination = currentUser.role === 'ADMIN' ? '/admin' : '/';
+          this.router.navigate([destination]);
         }),
         catchError(() => {
           this.isSubmitting.set(false);

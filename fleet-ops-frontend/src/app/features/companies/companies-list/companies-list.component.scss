@@ -21,52 +21,13 @@ a {
   color: inherit;
 }
 
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  padding: 20px 64px;
-  background: rgba(18, 8, 31, 0.85);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(167, 139, 250, 0.18);
-
-  @media (max-width: 768px) {
-    padding: 16px 24px;
-  }
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 19px;
-  font-weight: 700;
-}
-
-.logo-mark {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #7c3aed, #f5a623);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  font-weight: 700;
-  color: #12081f;
-}
-
 .companies-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 130px 40px 80px;
+  padding: 40px 40px 80px;
 
   @media (max-width: 1024px) {
-    padding: 110px 20px 40px;
+    padding: 24px 20px 40px;
   }
 }
 
