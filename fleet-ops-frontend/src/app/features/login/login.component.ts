@@ -40,7 +40,7 @@ export class LoginComponent {
       .pipe(
         tap((currentUser) => {
           this.isSubmitting.set(false);
-          const destination = currentUser.role === 'ADMIN' ? '/admin' : '/';
+          const destination = currentUser.role === 'ADMIN' ? '/admin' : '/user';
           this.router.navigate([destination]);
         }),
         catchError(() => {

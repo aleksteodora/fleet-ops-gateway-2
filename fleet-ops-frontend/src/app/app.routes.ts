@@ -21,9 +21,9 @@ export const routes: Routes = [
     import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
 },
 {
-  path: 'vehicle-search',
+  path: 'user',
   canActivate: [companyUserGuard],
   loadChildren: () =>
-    import('./features/vehicle-search/vehicle-search.routes').then((m) => m.VEHICLE_SEARCH_ROUTES),
+    import('./features/user/user.routes').then((m) => m.USER_ROUTES),
 },
 ];

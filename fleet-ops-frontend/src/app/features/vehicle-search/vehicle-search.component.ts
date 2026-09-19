@@ -1,6 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { catchError, finalize, of, tap } from 'rxjs';
 import { LucideSearch } from '@lucide/angular';
 import { VehicleSearchService } from '../../core/services/vehicle-search.service';
@@ -8,7 +7,7 @@ import { VehicleSearchResult } from '../../core/models/vehicle-search-result.mod
 
 @Component({
   selector: 'app-vehicle-search',
-  imports: [ReactiveFormsModule, RouterLink, LucideSearch],
+  imports: [ReactiveFormsModule, LucideSearch],
   templateUrl: './vehicle-search.component.html',
   styleUrl: './vehicle-search.component.scss',
 })
