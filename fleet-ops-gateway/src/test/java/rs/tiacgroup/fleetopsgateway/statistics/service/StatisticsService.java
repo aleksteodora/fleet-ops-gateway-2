@@ -9,13 +9,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import rs.tiacgroup.fleetopsgateway.searchhistory.entity.ProviderType;
 import rs.tiacgroup.fleetopsgateway.searchhistory.entity.SearchStatus;
 import rs.tiacgroup.fleetopsgateway.searchhistory.repository.SearchHistoryRepository;
-import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.CompanyOutcomeCount;
-import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.CompanyProviderCount;
-import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.OutcomeCount;
-import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.ProviderCount;
+import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.*;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.OutcomeStatistics;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.ProviderStatistics;
+import rs.tiacgroup.fleetopsgateway.statistics.dto.VolumeStatistics;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -164,6 +163,95 @@ class StatisticsServiceTest {
         CompanyOutcomeCount mock = Mockito.mock(CompanyOutcomeCount.class);
         when(mock.getCompanyId()).thenReturn(companyId);
         when(mock.getSearchStatus()).thenReturn(status);
+        when(mock.getCount()).thenReturn(count);
+        return mock;
+    }
+
+    @Test
+    void getVolumeStatistics_shouldAggregateDailyAndWeeklyCorrectly() {
+        // given
+        LocalDate day1 = LocalDate.of(2026, 9, 15);
+        LocalDate day2 = LocalDate.of(2026, 9, 18);
+
+        DailyCount day1Total = mockDailyCount(day1, 132L);
+        DailyCount day2Total = mockDailyCount(day2, 40L);
+
+        CompanyDailyCount company1Day1 = mockCompanyDailyCount(1L, day1, 78L);
+        CompanyDailyCount company1Day2 = mockCompanyDailyCount(1L, day2, 40L);
+
+        WeeklyCount week38Total = mockWeeklyCount(2026, 38, 172L);
+        CompanyWeeklyCount company1Week38 = mockCompanyWeeklyCount(1L, 2026, 38, 118L);
+
+        when(searchHistoryRepository.countByDay()).thenReturn(List.of(day1Total, day2Total));
+        when(searchHistoryRepository.countByCompanyAndDay()).thenReturn(List.of(company1Day1, company1Day2));
+        when(searchHistoryRepository.countByWeek()).thenReturn(List.of(week38Total));
+        when(searchHistoryRepository.countByCompanyAndWeek()).thenReturn(List.of(company1Week38));
+
+        // when
+        VolumeStatistics result = statisticsService.getVolumeStatistics();
+
+        // then
+        assertThat(result.dailyTotal())
+                .containsEntry(day1, 132L)
+                .containsEntry(day2, 40L);
+
+        assertThat(result.dailyByCompany().get(1L))
+                .containsEntry(day1, 78L)
+                .containsEntry(day2, 40L);
+
+        assertThat(result.weeklyTotal())
+                .containsExactly(new VolumeStatistics.WeeklyCount(2026, 38, 172L));
+
+        assertThat(result.weeklyByCompany().get(1L))
+                .containsExactly(new VolumeStatistics.WeeklyCount(2026, 38, 118L));
+    }
+
+    @Test
+    void getVolumeStatistics_shouldReturnEmptyWhenNoData() {
+        // given
+        when(searchHistoryRepository.countByDay()).thenReturn(List.of());
+        when(searchHistoryRepository.countByCompanyAndDay()).thenReturn(List.of());
+        when(searchHistoryRepository.countByWeek()).thenReturn(List.of());
+        when(searchHistoryRepository.countByCompanyAndWeek()).thenReturn(List.of());
+
+        // when
+        VolumeStatistics result = statisticsService.getVolumeStatistics();
+
+        // then
+        assertThat(result.dailyTotal()).isEmpty();
+        assertThat(result.dailyByCompany()).isEmpty();
+        assertThat(result.weeklyTotal()).isEmpty();
+        assertThat(result.weeklyByCompany()).isEmpty();
+    }
+
+    private DailyCount mockDailyCount(LocalDate date, Long count) {
+        DailyCount mock = Mockito.mock(DailyCount.class);
+        when(mock.getSearchDate()).thenReturn(date);
+        when(mock.getCount()).thenReturn(count);
+        return mock;
+    }
+
+    private CompanyDailyCount mockCompanyDailyCount(Long companyId, LocalDate date, Long count) {
+        CompanyDailyCount mock = Mockito.mock(CompanyDailyCount.class);
+        when(mock.getCompanyId()).thenReturn(companyId);
+        when(mock.getSearchDate()).thenReturn(date);
+        when(mock.getCount()).thenReturn(count);
+        return mock;
+    }
+
+    private WeeklyCount mockWeeklyCount(Integer year, Integer week, Long count) {
+        WeeklyCount mock = Mockito.mock(WeeklyCount.class);
+        when(mock.getYear()).thenReturn(year);
+        when(mock.getWeek()).thenReturn(week);
+        when(mock.getCount()).thenReturn(count);
+        return mock;
+    }
+
+    private CompanyWeeklyCount mockCompanyWeeklyCount(Long companyId, Integer year, Integer week, Long count) {
+        CompanyWeeklyCount mock = Mockito.mock(CompanyWeeklyCount.class);
+        when(mock.getCompanyId()).thenReturn(companyId);
+        when(mock.getYear()).thenReturn(year);
+        when(mock.getWeek()).thenReturn(week);
         when(mock.getCount()).thenReturn(count);
         return mock;
     }

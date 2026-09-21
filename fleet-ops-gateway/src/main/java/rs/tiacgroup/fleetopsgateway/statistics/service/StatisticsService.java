@@ -5,14 +5,15 @@ import org.springframework.stereotype.Service;
 import rs.tiacgroup.fleetopsgateway.searchhistory.entity.ProviderType;
 import rs.tiacgroup.fleetopsgateway.searchhistory.entity.SearchStatus;
 import rs.tiacgroup.fleetopsgateway.searchhistory.repository.SearchHistoryRepository;
-import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.CompanyOutcomeCount;
-import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.CompanyProviderCount;
-import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.OutcomeCount;
-import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.ProviderCount;
+import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.*;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.OutcomeStatistics;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.ProviderStatistics;
+import rs.tiacgroup.fleetopsgateway.statistics.dto.VolumeStatistics;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -75,5 +76,35 @@ public class StatisticsService {
             counts.put(status, 0L);
         }
         return counts;
+    }
+
+    public VolumeStatistics getVolumeStatistics() {
+        log.debug("Calculating search volume statistics");
+
+        Map<LocalDate, Long> dailyTotal = new HashMap<>();
+        for (DailyCount row : searchHistoryRepository.countByDay()) {
+            dailyTotal.put(row.getSearchDate(), row.getCount());
+        }
+
+        Map<Long, Map<LocalDate, Long>> dailyByCompany = new HashMap<>();
+        for (CompanyDailyCount row : searchHistoryRepository.countByCompanyAndDay()) {
+            dailyByCompany
+                    .computeIfAbsent(row.getCompanyId(), id -> new HashMap<>())
+                    .put(row.getSearchDate(), row.getCount());
+        }
+
+        List<VolumeStatistics.WeeklyCount> weeklyTotal = new ArrayList<>();
+        for (WeeklyCount row : searchHistoryRepository.countByWeek()) {
+            weeklyTotal.add(new VolumeStatistics.WeeklyCount(row.getYear(), row.getWeek(), row.getCount()));
+        }
+
+        Map<Long, List<VolumeStatistics.WeeklyCount>> weeklyByCompany = new HashMap<>();
+        for (CompanyWeeklyCount row : searchHistoryRepository.countByCompanyAndWeek()) {
+            weeklyByCompany
+                    .computeIfAbsent(row.getCompanyId(), id -> new ArrayList<>())
+                    .add(new VolumeStatistics.WeeklyCount(row.getYear(), row.getWeek(), row.getCount()));
+        }
+
+        return new VolumeStatistics(dailyTotal, dailyByCompany, weeklyTotal, weeklyByCompany);
     }
 }
