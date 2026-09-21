@@ -52,7 +52,13 @@ public class StatisticsController {
     }
 
     @GetMapping("/my-searches")
-    public UserVolumeStatistics getMySearchStatistics(@RequestHeader("X-User-Id") Long userId) {
-        return statisticsService.getMySearchStatistics(userId);
+    public UserVolumeStatistics getMySearchStatistics(
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
+        return statisticsService.getMySearchStatistics(
+                userId,
+                from != null ? from : LocalDateTime.now().minusYears(1),
+                to != null ? to : LocalDateTime.now());
     }
 }

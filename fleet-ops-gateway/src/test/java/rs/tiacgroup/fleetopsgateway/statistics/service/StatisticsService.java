@@ -273,16 +273,17 @@ class StatisticsServiceTest {
         Long userId = 1L;
         LocalDate day1 = LocalDate.of(2026, 9, 15);
         LocalDate day2 = LocalDate.of(2026, 9, 18);
+        LocalDate weekStart = LocalDate.of(2026, 9, 14);
 
         DailyCount day1Count = mockDailyCount(day1, 132L);
         DailyCount day2Count = mockDailyCount(day2, 1L);
-        WeeklyCount week38Count = mockWeeklyCount(2026, 38, 133L);
+        WeekBucketCount weekCount = mockWeekBucketCount(weekStart, 133L);
 
-        when(searchHistoryRepository.countByDayForUser(userId)).thenReturn(List.of(day1Count, day2Count));
-        when(searchHistoryRepository.countByWeekForUser(userId)).thenReturn(List.of(week38Count));
+        when(searchHistoryRepository.countByDayForUser(userId, FROM, TO)).thenReturn(List.of(day1Count, day2Count));
+        when(searchHistoryRepository.countByWeekForUser(userId, FROM, TO)).thenReturn(List.of(weekCount));
 
         // when
-        UserVolumeStatistics result = statisticsService.getMySearchStatistics(userId);
+        UserVolumeStatistics result = statisticsService.getMySearchStatistics(userId, FROM, TO);
 
         // then
         assertThat(result.daily())
@@ -290,18 +291,18 @@ class StatisticsServiceTest {
                 .containsEntry(day2, 1L);
 
         assertThat(result.weekly())
-                .containsExactly(new VolumeStatistics.WeeklyCount(2026, 38, 133L));
+                .containsExactly(new VolumeStatistics.WeeklyCount(weekStart, 133L));
     }
 
     @Test
     void getMySearchStatistics_shouldReturnEmptyWhenUserHasNoSearches() {
         // given
         Long userId = 999L;
-        when(searchHistoryRepository.countByDayForUser(userId)).thenReturn(List.of());
-        when(searchHistoryRepository.countByWeekForUser(userId)).thenReturn(List.of());
+        when(searchHistoryRepository.countByDayForUser(userId, FROM, TO)).thenReturn(List.of());
+        when(searchHistoryRepository.countByWeekForUser(userId, FROM, TO)).thenReturn(List.of());
 
         // when
-        UserVolumeStatistics result = statisticsService.getMySearchStatistics(userId);
+        UserVolumeStatistics result = statisticsService.getMySearchStatistics(userId, FROM, TO);
 
         // then
         assertThat(result.daily()).isEmpty();
