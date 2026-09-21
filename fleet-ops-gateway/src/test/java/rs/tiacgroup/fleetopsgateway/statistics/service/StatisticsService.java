@@ -12,6 +12,7 @@ import rs.tiacgroup.fleetopsgateway.searchhistory.repository.SearchHistoryReposi
 import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.*;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.OutcomeStatistics;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.ProviderStatistics;
+import rs.tiacgroup.fleetopsgateway.statistics.dto.UserVolumeStatistics;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.VolumeStatistics;
 
 import java.time.LocalDate;
@@ -254,5 +255,46 @@ class StatisticsServiceTest {
         when(mock.getWeek()).thenReturn(week);
         when(mock.getCount()).thenReturn(count);
         return mock;
+    }
+
+    @Test
+    void getMySearchStatistics_shouldAggregateDailyAndWeeklyForGivenUser() {
+        // given
+        Long userId = 1L;
+        LocalDate day1 = LocalDate.of(2026, 9, 15);
+        LocalDate day2 = LocalDate.of(2026, 9, 18);
+
+        DailyCount day1Count = mockDailyCount(day1, 132L);
+        DailyCount day2Count = mockDailyCount(day2, 1L);
+        WeeklyCount week38Count = mockWeeklyCount(2026, 38, 133L);
+
+        when(searchHistoryRepository.countByDayForUser(userId)).thenReturn(List.of(day1Count, day2Count));
+        when(searchHistoryRepository.countByWeekForUser(userId)).thenReturn(List.of(week38Count));
+
+        // when
+        UserVolumeStatistics result = statisticsService.getMySearchStatistics(userId);
+
+        // then
+        assertThat(result.daily())
+                .containsEntry(day1, 132L)
+                .containsEntry(day2, 1L);
+
+        assertThat(result.weekly())
+                .containsExactly(new VolumeStatistics.WeeklyCount(2026, 38, 133L));
+    }
+
+    @Test
+    void getMySearchStatistics_shouldReturnEmptyWhenUserHasNoSearches() {
+        // given
+        Long userId = 999L;
+        when(searchHistoryRepository.countByDayForUser(userId)).thenReturn(List.of());
+        when(searchHistoryRepository.countByWeekForUser(userId)).thenReturn(List.of());
+
+        // when
+        UserVolumeStatistics result = statisticsService.getMySearchStatistics(userId);
+
+        // then
+        assertThat(result.daily()).isEmpty();
+        assertThat(result.weekly()).isEmpty();
     }
 }

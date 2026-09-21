@@ -8,6 +8,7 @@ import rs.tiacgroup.fleetopsgateway.searchhistory.repository.SearchHistoryReposi
 import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.*;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.OutcomeStatistics;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.ProviderStatistics;
+import rs.tiacgroup.fleetopsgateway.statistics.dto.UserVolumeStatistics;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.VolumeStatistics;
 
 import java.time.LocalDate;
@@ -106,5 +107,21 @@ public class StatisticsService {
         }
 
         return new VolumeStatistics(dailyTotal, dailyByCompany, weeklyTotal, weeklyByCompany);
+    }
+
+    public UserVolumeStatistics getMySearchStatistics(Long userId) {
+        log.debug("Calculating search statistics for userId={}", userId);
+
+        Map<LocalDate, Long> daily = new HashMap<>();
+        for (DailyCount row : searchHistoryRepository.countByDayForUser(userId)) {
+            daily.put(row.getSearchDate(), row.getCount());
+        }
+
+        List<VolumeStatistics.WeeklyCount> weekly = new ArrayList<>();
+        for (WeeklyCount row : searchHistoryRepository.countByWeekForUser(userId)) {
+            weekly.add(new VolumeStatistics.WeeklyCount(row.getYear(), row.getWeek(), row.getCount()));
+        }
+
+        return new UserVolumeStatistics(daily, weekly);
     }
 }

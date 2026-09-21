@@ -210,4 +210,45 @@ class SearchHistoryRepositoryTest {
         searchHistoryRepository.flush();
         jdbcTemplate.update("UPDATE search_histories SET searched_at = ? WHERE id = ?", searchedAt, history.getId());
     }
+
+    @Test
+    void countByDayForUser_shouldReturnOnlyThatUsersSearches() {
+        // given
+        LocalDateTime day1 = LocalDateTime.of(2026, 9, 15, 10, 0);
+
+        saveWithUserAndSearchedAt(1L, "VIN1", day1);
+        saveWithUserAndSearchedAt(1L, "VIN2", day1);
+        saveWithUserAndSearchedAt(2L, "VIN3", day1);
+
+        // when
+        List<DailyCount> result = searchHistoryRepository.countByDayForUser(1L);
+
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getCount()).isEqualTo(2L);
+    }
+
+    @Test
+    void countByWeekForUser_shouldReturnOnlyThatUsersSearches() {
+        // given
+        LocalDateTime day1 = LocalDateTime.of(2026, 9, 15, 10, 0);
+
+        saveWithUserAndSearchedAt(1L, "VIN1", day1);
+        saveWithUserAndSearchedAt(2L, "VIN2", day1);
+        saveWithUserAndSearchedAt(2L, "VIN3", day1);
+
+        // when
+        List<WeeklyCount> result = searchHistoryRepository.countByWeekForUser(2L);
+
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getCount()).isEqualTo(2L);
+    }
+
+    private void saveWithUserAndSearchedAt(Long userId, String vin, LocalDateTime searchedAt) {
+        SearchHistory history = new SearchHistory(userId, 1L, vin, ProviderType.FREE, SearchStatus.FOUND);
+        searchHistoryRepository.save(history);
+        searchHistoryRepository.flush();
+        jdbcTemplate.update("UPDATE search_histories SET searched_at = ? WHERE id = ?", searchedAt, history.getId());
+    }
 }

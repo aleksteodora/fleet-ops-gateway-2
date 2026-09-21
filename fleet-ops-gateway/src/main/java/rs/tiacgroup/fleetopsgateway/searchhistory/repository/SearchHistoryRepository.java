@@ -41,4 +41,14 @@ public interface SearchHistoryRepository extends JpaRepository<SearchHistory, Lo
             "FROM search_histories GROUP BY company_id, EXTRACT(YEAR FROM searched_at), EXTRACT(WEEK FROM searched_at) ORDER BY \"year\", \"week\"",
             nativeQuery = true)
     List<CompanyWeeklyCount> countByCompanyAndWeek();
+
+    @Query(value = "SELECT CAST(searched_at AS DATE) AS searchDate, COUNT(*) AS count " +
+            "FROM search_histories WHERE user_id = :userId GROUP BY CAST(searched_at AS DATE) ORDER BY searchDate",
+            nativeQuery = true)
+    List<DailyCount> countByDayForUser(Long userId);
+
+    @Query(value = "SELECT EXTRACT(YEAR FROM searched_at) AS \"year\", EXTRACT(WEEK FROM searched_at) AS \"week\", COUNT(*) AS count " +
+            "FROM search_histories WHERE user_id = :userId GROUP BY EXTRACT(YEAR FROM searched_at), EXTRACT(WEEK FROM searched_at) ORDER BY \"year\", \"week\"",
+            nativeQuery = true)
+    List<WeeklyCount> countByWeekForUser(Long userId);
 }
