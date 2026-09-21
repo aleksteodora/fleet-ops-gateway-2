@@ -1,8 +1,9 @@
 package rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection;
 
-public interface CompanyWeeklyCount {
+import java.time.LocalDate;
+
+public interface CompanyWeekBucketCount {
     Long getCompanyId();
-    Integer getYear();
-    Integer getWeek();
+    LocalDate getWeekStart();
     Long getCount();
 }

@@ -11,7 +11,9 @@ import java.time.LocalDateTime;
 @Table(name = "search_histories", indexes = {
         @Index(name = "idx_search_history_user_id", columnList = "userId"),
         @Index(name = "idx_search_history_company_id", columnList = "companyId"),
-        @Index(name = "idx_search_history_provider", columnList = "provider")
+        @Index(name = "idx_search_history_provider", columnList = "provider"),
+        @Index(name = "idx_search_history_searched_at", columnList = "searchedAt"),
+        @Index(name = "idx_search_history_company_searched_at", columnList = "companyId, searchedAt")
 })
 @Getter
 public class SearchHistory {
