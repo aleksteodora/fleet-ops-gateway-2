@@ -235,6 +235,40 @@ class SearchHistoryRepositoryTest {
         assertThat(result.getFirst().getCount()).isEqualTo(1L);
     }
 
+    @Test
+    void countByDayForUser_shouldReturnOnlyThatUsersSearches() {
+        // given
+        LocalDateTime day1 = LocalDateTime.of(2026, 9, 15, 10, 0);
+
+        saveWithSearchedAt(1L, 1L, "VIN1", day1);
+        saveWithSearchedAt(1L, 1L, "VIN2", day1);
+        saveWithSearchedAt(2L, 1L, "VIN3", day1);
+
+        // when
+        List<DailyCount> result = searchHistoryRepository.countByDayForUser(1L, WIDE_FROM, WIDE_TO);
+
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getCount()).isEqualTo(2L);
+    }
+
+    @Test
+    void countByWeekForUser_shouldReturnOnlyThatUsersSearches() {
+        // given
+        LocalDateTime day1 = LocalDateTime.of(2026, 9, 15, 10, 0);
+
+        saveWithSearchedAt(1L, 1L, "VIN1", day1);
+        saveWithSearchedAt(2L, 1L, "VIN2", day1);
+        saveWithSearchedAt(2L, 1L, "VIN3", day1);
+
+        // when
+        List<WeekBucketCount> result = searchHistoryRepository.countByWeekForUser(2L, WIDE_FROM, WIDE_TO);
+
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getCount()).isEqualTo(2L);
+    }
+
     private void saveWithSearchedAt(Long userId, Long companyId, String vin, LocalDateTime searchedAt) {
         SearchHistory history = new SearchHistory(userId, companyId, vin, ProviderType.FREE, SearchStatus.FOUND);
         searchHistoryRepository.save(history);

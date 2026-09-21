@@ -59,4 +59,16 @@ public interface SearchHistoryRepository extends JpaRepository<SearchHistory, Lo
             "GROUP BY company_id, CAST(date_trunc('week', searched_at) AS DATE) ORDER BY \"weekStart\"",
             nativeQuery = true)
     List<CompanyWeekBucketCount> countByCompanyAndWeek(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    @Query(value = "SELECT CAST(searched_at AS DATE) AS searchDate, COUNT(*) AS count " +
+            "FROM search_histories WHERE user_id = :userId AND searched_at >= :from AND searched_at < :to " +
+            "GROUP BY CAST(searched_at AS DATE) ORDER BY searchDate",
+            nativeQuery = true)
+    List<DailyCount> countByDayForUser(@Param("userId") Long userId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    @Query(value = "SELECT CAST(date_trunc('week', searched_at) AS DATE) AS \"weekStart\", COUNT(*) AS count " +
+            "FROM search_histories WHERE user_id = :userId AND searched_at >= :from AND searched_at < :to " +
+            "GROUP BY CAST(date_trunc('week', searched_at) AS DATE) ORDER BY \"weekStart\"",
+            nativeQuery = true)
+    List<WeekBucketCount> countByWeekForUser(@Param("userId") Long userId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 }

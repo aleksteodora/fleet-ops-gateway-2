@@ -19,6 +19,7 @@ import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.Provider
 import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.WeekBucketCount;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.OutcomeStatistics;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.ProviderStatistics;
+import rs.tiacgroup.fleetopsgateway.statistics.dto.UserVolumeStatistics;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.VolumeStatistics;
 
 import java.time.LocalDate;
@@ -264,5 +265,47 @@ class StatisticsServiceTest {
         when(mock.getWeekStart()).thenReturn(weekStart);
         when(mock.getCount()).thenReturn(count);
         return mock;
+    }
+
+    @Test
+    void getMySearchStatistics_shouldAggregateDailyAndWeeklyForGivenUser() {
+        // given
+        Long userId = 1L;
+        LocalDate day1 = LocalDate.of(2026, 9, 15);
+        LocalDate day2 = LocalDate.of(2026, 9, 18);
+        LocalDate weekStart = LocalDate.of(2026, 9, 14);
+
+        DailyCount day1Count = mockDailyCount(day1, 132L);
+        DailyCount day2Count = mockDailyCount(day2, 1L);
+        WeekBucketCount weekCount = mockWeekBucketCount(weekStart, 133L);
+
+        when(searchHistoryRepository.countByDayForUser(userId, FROM, TO)).thenReturn(List.of(day1Count, day2Count));
+        when(searchHistoryRepository.countByWeekForUser(userId, FROM, TO)).thenReturn(List.of(weekCount));
+
+        // when
+        UserVolumeStatistics result = statisticsService.getMySearchStatistics(userId, FROM, TO);
+
+        // then
+        assertThat(result.daily())
+                .containsEntry(day1, 132L)
+                .containsEntry(day2, 1L);
+
+        assertThat(result.weekly())
+                .containsExactly(new VolumeStatistics.WeeklyCount(weekStart, 133L));
+    }
+
+    @Test
+    void getMySearchStatistics_shouldReturnEmptyWhenUserHasNoSearches() {
+        // given
+        Long userId = 999L;
+        when(searchHistoryRepository.countByDayForUser(userId, FROM, TO)).thenReturn(List.of());
+        when(searchHistoryRepository.countByWeekForUser(userId, FROM, TO)).thenReturn(List.of());
+
+        // when
+        UserVolumeStatistics result = statisticsService.getMySearchStatistics(userId, FROM, TO);
+
+        // then
+        assertThat(result.daily()).isEmpty();
+        assertThat(result.weekly()).isEmpty();
     }
 }

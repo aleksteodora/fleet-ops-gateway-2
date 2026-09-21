@@ -2,11 +2,13 @@ package rs.tiacgroup.fleetopsgateway.statistics.controller;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.OutcomeStatistics;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.ProviderStatistics;
+import rs.tiacgroup.fleetopsgateway.statistics.dto.UserVolumeStatistics;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.VolumeStatistics;
 import rs.tiacgroup.fleetopsgateway.statistics.service.StatisticsService;
 
@@ -45,6 +47,17 @@ public class StatisticsController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
         return statisticsService.getVolumeStatistics(
+                from != null ? from : LocalDateTime.now().minusYears(1),
+                to != null ? to : LocalDateTime.now());
+    }
+
+    @GetMapping("/my-searches")
+    public UserVolumeStatistics getMySearchStatistics(
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
+        return statisticsService.getMySearchStatistics(
+                userId,
                 from != null ? from : LocalDateTime.now().minusYears(1),
                 to != null ? to : LocalDateTime.now());
     }

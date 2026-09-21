@@ -16,6 +16,7 @@ import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.Provider
 import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.WeekBucketCount;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.OutcomeStatistics;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.ProviderStatistics;
+import rs.tiacgroup.fleetopsgateway.statistics.dto.UserVolumeStatistics;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.VolumeStatistics;
 
 import java.time.LocalDate;
@@ -104,6 +105,23 @@ public class StatisticsService {
         }
 
         return new VolumeStatistics(dailyTotal, dailyByCompany, weeklyTotal, weeklyByCompany);
+    }
+
+    @Transactional(readOnly = true)
+    public UserVolumeStatistics getMySearchStatistics(Long userId, LocalDateTime from, LocalDateTime to) {
+        log.debug("Calculating search statistics for userId={} from={} to={}", userId, from, to);
+
+        Map<LocalDate, Long> daily = new TreeMap<>();
+        for (DailyCount row : searchHistoryRepository.countByDayForUser(userId, from, to)) {
+            daily.put(row.getSearchDate(), row.getCount());
+        }
+
+        List<VolumeStatistics.WeeklyCount> weekly = new ArrayList<>();
+        for (WeekBucketCount row : searchHistoryRepository.countByWeekForUser(userId, from, to)) {
+            weekly.add(new VolumeStatistics.WeeklyCount(row.getWeekStart(), row.getCount()));
+        }
+
+        return new UserVolumeStatistics(daily, weekly);
     }
 
     private Map<ProviderType, Long> initializeProviderCounts() {
