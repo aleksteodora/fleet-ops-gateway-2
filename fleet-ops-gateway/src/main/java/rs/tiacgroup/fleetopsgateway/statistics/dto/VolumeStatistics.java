@@ -10,6 +10,6 @@ public record VolumeStatistics(
         List<WeeklyCount> weeklyTotal,
         Map<Long, List<WeeklyCount>> weeklyByCompany
 ) {
-    public record WeeklyCount(Integer year, Integer week, Long count) {
+    public record WeeklyCount(LocalDate weekStart, Long count) {
     }
 }
