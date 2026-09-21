@@ -7,9 +7,10 @@ import org.springframework.test.context.ActiveProfiles;
 import rs.tiacgroup.fleetopsgateway.searchhistory.entity.ProviderType;
 import rs.tiacgroup.fleetopsgateway.searchhistory.entity.SearchHistory;
 import rs.tiacgroup.fleetopsgateway.searchhistory.entity.SearchStatus;
+import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.CompanyProviderCount;
+import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.ProviderCount;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,17 +29,20 @@ class SearchHistoryRepositoryTest {
         searchHistoryRepository.save(new SearchHistory(1L, 1L, "VIN3", ProviderType.PREMIUM, SearchStatus.FOUND));
 
         // when
-        List<Object[]> result = searchHistoryRepository.countByProvider();
+        List<ProviderCount> result = searchHistoryRepository.countByProvider();
 
         // then
-        Map<ProviderType, Long> counts = result.stream()
-                .collect(java.util.stream.Collectors.toMap(
-                        row -> (ProviderType) row[0],
-                        row -> (Long) row[1]
-                ));
+        ProviderCount freeCount = result.stream()
+                .filter(row -> row.getProvider() == ProviderType.FREE)
+                .findFirst()
+                .orElseThrow();
+        ProviderCount premiumCount = result.stream()
+                .filter(row -> row.getProvider() == ProviderType.PREMIUM)
+                .findFirst()
+                .orElseThrow();
 
-        assertThat(counts.get(ProviderType.FREE)).isEqualTo(2L);
-        assertThat(counts.get(ProviderType.PREMIUM)).isEqualTo(1L);
+        assertThat(freeCount.getCount()).isEqualTo(2L);
+        assertThat(premiumCount.getCount()).isEqualTo(1L);
     }
 
     @Test
@@ -49,17 +53,17 @@ class SearchHistoryRepositoryTest {
         searchHistoryRepository.save(new SearchHistory(2L, 2L, "VIN3", ProviderType.FREE, SearchStatus.FOUND));
 
         // when
-        List<Object[]> result = searchHistoryRepository.countByCompanyAndProvider();
+        List<CompanyProviderCount> result = searchHistoryRepository.countByCompanyAndProvider();
 
         // then
         assertThat(result).hasSize(3);
 
         boolean hasCompany1Free = result.stream().anyMatch(row ->
-                row[0].equals(1L) && row[1].equals(ProviderType.FREE) && row[2].equals(1L));
+                row.getCompanyId().equals(1L) && row.getProvider() == ProviderType.FREE && row.getCount().equals(1L));
         boolean hasCompany1Premium = result.stream().anyMatch(row ->
-                row[0].equals(1L) && row[1].equals(ProviderType.PREMIUM) && row[2].equals(1L));
+                row.getCompanyId().equals(1L) && row.getProvider() == ProviderType.PREMIUM && row.getCount().equals(1L));
         boolean hasCompany2Free = result.stream().anyMatch(row ->
-                row[0].equals(2L) && row[1].equals(ProviderType.FREE) && row[2].equals(1L));
+                row.getCompanyId().equals(2L) && row.getProvider() == ProviderType.FREE && row.getCount().equals(1L));
 
         assertThat(hasCompany1Free).isTrue();
         assertThat(hasCompany1Premium).isTrue();

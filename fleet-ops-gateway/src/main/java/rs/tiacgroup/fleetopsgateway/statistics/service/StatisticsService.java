@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import rs.tiacgroup.fleetopsgateway.searchhistory.entity.ProviderType;
 import rs.tiacgroup.fleetopsgateway.searchhistory.repository.SearchHistoryRepository;
+import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.CompanyProviderCount;
+import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.ProviderCount;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.ProviderStatistics;
 
 import java.util.HashMap;
@@ -22,24 +24,26 @@ public class StatisticsService {
     public ProviderStatistics getProviderStatistics() {
         log.debug("Calculating provider usage statistics");
 
-        Map<ProviderType, Long> totalByProvider = new HashMap<>();
-        for (Object[] row : searchHistoryRepository.countByProvider()) {
-            ProviderType provider = (ProviderType) row[0];
-            Long count = (Long) row[1];
-            totalByProvider.put(provider, count);
+        Map<ProviderType, Long> totalByProvider = initializeProviderCounts();
+        for (ProviderCount row : searchHistoryRepository.countByProvider()) {
+            totalByProvider.put(row.getProvider(), row.getCount());
         }
 
         Map<Long, Map<ProviderType, Long>> byCompanyAndProvider = new HashMap<>();
-        for (Object[] row : searchHistoryRepository.countByCompanyAndProvider()) {
-            Long companyId = (Long) row[0];
-            ProviderType provider = (ProviderType) row[1];
-            Long count = (Long) row[2];
-
+        for (CompanyProviderCount row : searchHistoryRepository.countByCompanyAndProvider()) {
             byCompanyAndProvider
-                    .computeIfAbsent(companyId, id -> new HashMap<>())
-                    .put(provider, count);
+                    .computeIfAbsent(row.getCompanyId(), id -> initializeProviderCounts())
+                    .put(row.getProvider(), row.getCount());
         }
 
         return new ProviderStatistics(totalByProvider, byCompanyAndProvider);
+    }
+
+    private Map<ProviderType, Long> initializeProviderCounts() {
+        Map<ProviderType, Long> counts = new HashMap<>();
+        for (ProviderType provider : ProviderType.values()) {
+            counts.put(provider, 0L);
+        }
+        return counts;
     }
 }
