@@ -7,9 +7,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import rs.tiacgroup.fleetopsgateway.searchhistory.entity.ProviderType;
+import rs.tiacgroup.fleetopsgateway.searchhistory.entity.SearchStatus;
 import rs.tiacgroup.fleetopsgateway.searchhistory.repository.SearchHistoryRepository;
+import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.CompanyOutcomeCount;
 import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.CompanyProviderCount;
+import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.OutcomeCount;
 import rs.tiacgroup.fleetopsgateway.searchhistory.repository.projection.ProviderCount;
+import rs.tiacgroup.fleetopsgateway.statistics.dto.OutcomeStatistics;
 import rs.tiacgroup.fleetopsgateway.statistics.dto.ProviderStatistics;
 
 import java.util.List;
@@ -92,6 +96,74 @@ class StatisticsServiceTest {
         CompanyProviderCount mock = Mockito.mock(CompanyProviderCount.class);
         when(mock.getCompanyId()).thenReturn(companyId);
         when(mock.getProvider()).thenReturn(provider);
+        when(mock.getCount()).thenReturn(count);
+        return mock;
+    }
+
+    @Test
+    void getOutcomeStatistics_shouldAggregateTotalsAndPerCompanyCorrectly() {
+        // given
+        OutcomeCount foundTotal = mockOutcomeCount(SearchStatus.FOUND, 53L);
+        OutcomeCount noResultsTotal = mockOutcomeCount(SearchStatus.NO_RESULTS, 103L);
+        OutcomeCount thirdPartyDownTotal = mockOutcomeCount(SearchStatus.THIRD_PARTY_DOWN, 16L);
+
+        CompanyOutcomeCount company1Found = mockCompanyOutcomeCount(1L, SearchStatus.FOUND, 38L);
+        CompanyOutcomeCount company5NoResults = mockCompanyOutcomeCount(5L, SearchStatus.NO_RESULTS, 34L);
+
+        when(searchHistoryRepository.countByOutcome()).thenReturn(
+                List.of(foundTotal, noResultsTotal, thirdPartyDownTotal)
+        );
+        when(searchHistoryRepository.countByCompanyAndOutcome()).thenReturn(
+                List.of(company1Found, company5NoResults)
+        );
+
+        // when
+        OutcomeStatistics result = statisticsService.getOutcomeStatistics();
+
+        // then
+        assertThat(result.totalByOutcome())
+                .containsEntry(SearchStatus.FOUND, 53L)
+                .containsEntry(SearchStatus.NO_RESULTS, 103L)
+                .containsEntry(SearchStatus.THIRD_PARTY_DOWN, 16L);
+
+        assertThat(result.byCompanyAndOutcome().get(1L))
+                .containsEntry(SearchStatus.FOUND, 38L);
+
+        assertThat(result.byCompanyAndOutcome().get(5L))
+                .containsEntry(SearchStatus.NO_RESULTS, 34L)
+                .containsEntry(SearchStatus.FOUND, 0L)
+                .containsEntry(SearchStatus.THIRD_PARTY_DOWN, 0L);
+    }
+
+    @Test
+    void getOutcomeStatistics_shouldReturnAllOutcomesWithZeroWhenNoData() {
+        // given
+        when(searchHistoryRepository.countByOutcome()).thenReturn(List.of());
+        when(searchHistoryRepository.countByCompanyAndOutcome()).thenReturn(List.of());
+
+        // when
+        OutcomeStatistics result = statisticsService.getOutcomeStatistics();
+
+        // then
+        assertThat(result.totalByOutcome())
+                .containsEntry(SearchStatus.FOUND, 0L)
+                .containsEntry(SearchStatus.NO_RESULTS, 0L)
+                .containsEntry(SearchStatus.THIRD_PARTY_DOWN, 0L);
+
+        assertThat(result.byCompanyAndOutcome()).isEmpty();
+    }
+
+    private OutcomeCount mockOutcomeCount(SearchStatus status, Long count) {
+        OutcomeCount mock = Mockito.mock(OutcomeCount.class);
+        when(mock.getSearchStatus()).thenReturn(status);
+        when(mock.getCount()).thenReturn(count);
+        return mock;
+    }
+
+    private CompanyOutcomeCount mockCompanyOutcomeCount(Long companyId, SearchStatus status, Long count) {
+        CompanyOutcomeCount mock = Mockito.mock(CompanyOutcomeCount.class);
+        when(mock.getCompanyId()).thenReturn(companyId);
+        when(mock.getSearchStatus()).thenReturn(status);
         when(mock.getCount()).thenReturn(count);
         return mock;
     }
