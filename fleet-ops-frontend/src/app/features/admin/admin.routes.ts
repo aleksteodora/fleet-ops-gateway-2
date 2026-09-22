@@ -17,6 +17,11 @@ export const ADMIN_ROUTES: Routes = [
         loadChildren: () =>
           import('../companies/companies.routes').then((m) => m.COMPANIES_ROUTES),
       },
+      {
+        path: 'statistics',
+        loadComponent: () =>
+          import('./statistics/statistics.component').then((m) => m.StatisticsComponent),
+      },
     ],
   },
 ];

@@ -1,0 +1,71 @@
+<div class="statistics-page">
+  <div class="page-header">
+    <h1>Statistics</h1>
+    <p class="subtitle">Overview of search activity across the platform.</p>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label for="fromDate">From</label>
+      <input id="fromDate" type="date" [(ngModel)]="fromDate" (change)="onFilterChange()" />
+    </div>
+
+    <div class="filter-group">
+      <label for="toDate">To</label>
+      <input id="toDate" type="date" [(ngModel)]="toDate" (change)="onFilterChange()" />
+    </div>
+
+    <div class="filter-group">
+      <label for="companyFilter">Company</label>
+      <select id="companyFilter" [(ngModel)]="selectedCompanyId" (change)="onFilterChange()">
+        <option value="">All companies</option>
+        @for (company of companies(); track company.id) {
+          <option [value]="company.id">{{ company.name }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state-message">Loading statistics...</div>
+  }
+
+  @if (errorMessage()) {
+    <div class="state-message error">{{ errorMessage() }}</div>
+  }
+
+  <div class="charts-grid" [class.hidden]="isLoading() || errorMessage()">
+    <div class="chart-card wide">
+      <div class="chart-header">
+        <h2>Search volume over time</h2>
+        <div class="period-toggle">
+          <button
+            type="button"
+            [class.active]="volumePeriod() === 'daily'"
+            (click)="onVolumePeriodChange('daily')"
+          >
+            Daily
+          </button>
+          <button
+            type="button"
+            [class.active]="volumePeriod() === 'weekly'"
+            (click)="onVolumePeriodChange('weekly')"
+          >
+            Weekly
+          </button>
+        </div>
+      </div>
+      <canvas #volumeCanvas></canvas>
+    </div>
+
+    <div class="chart-card">
+      <h2>Provider usage</h2>
+      <canvas #providerCanvas></canvas>
+    </div>
+
+    <div class="chart-card">
+      <h2>Search outcomes</h2>
+      <canvas #outcomeCanvas></canvas>
+    </div>
+  </div>
+</div>

@@ -13,6 +13,11 @@ export const USER_ROUTES: Routes = [
           import('../vehicle-search/vehicle-search.routes').then((m) => m.VEHICLE_SEARCH_ROUTES),
       },
       {
+        path: 'statistics',
+        loadComponent: () =>
+          import('./statistics/statistics.component').then((m) => m.StatisticsComponent),
+      },
+      {
         path: 'profile',
         loadComponent: () =>
           import('./profile/profile.component').then((m) => m.ProfileComponent),

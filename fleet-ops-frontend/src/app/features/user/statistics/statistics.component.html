@@ -1,0 +1,49 @@
+<div class="statistics-page">
+  <div class="page-header">
+    <h1>My Statistics</h1>
+    <p class="subtitle">Your search activity over time.</p>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label for="fromDate">From</label>
+      <input id="fromDate" type="date" [(ngModel)]="fromDate" (change)="onFilterChange()" />
+    </div>
+
+    <div class="filter-group">
+      <label for="toDate">To</label>
+      <input id="toDate" type="date" [(ngModel)]="toDate" (change)="onFilterChange()" />
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state-message">Loading your statistics...</div>
+  }
+
+  @if (errorMessage()) {
+    <div class="state-message error">{{ errorMessage() }}</div>
+  }
+
+  <div class="chart-card wide" [class.hidden]="isLoading() || errorMessage()">
+    <div class="chart-header">
+      <h2>Search volume</h2>
+      <div class="period-toggle">
+        <button
+          type="button"
+          [class.active]="volumePeriod() === 'daily'"
+          (click)="onPeriodChange('daily')"
+        >
+          Daily
+        </button>
+        <button
+          type="button"
+          [class.active]="volumePeriod() === 'weekly'"
+          (click)="onPeriodChange('weekly')"
+        >
+          Weekly
+        </button>
+      </div>
+    </div>
+    <canvas #volumeCanvas></canvas>
+  </div>
+</div>
