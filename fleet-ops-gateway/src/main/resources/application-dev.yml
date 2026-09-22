@@ -45,8 +45,12 @@ logging:
 provider:
   free:
     base-url: http://localhost:8081/free-third-party
+    connect-timeout: 2000
+    read-timeout: 5000
   premium:
     base-url: http://localhost:8081/premium-third-party
+    connect-timeout: 2000
+    read-timeout: 2000
 
 cors:
   allowed-origins: http://localhost:4200

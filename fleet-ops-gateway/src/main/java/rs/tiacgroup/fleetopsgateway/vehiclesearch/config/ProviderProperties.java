@@ -7,6 +7,6 @@ public record ProviderProperties(
         ProviderConfig free,
         ProviderConfig premium
 ) {
-    public record ProviderConfig(String baseUrl) {
+    public record ProviderConfig(String baseUrl, int connectTimeout, int readTimeout) {
     }
 }
