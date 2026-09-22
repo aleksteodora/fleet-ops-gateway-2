@@ -1,6 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
 import { catchError, finalize, of, tap } from 'rxjs';
-import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CompanyService } from '../../../core/services/company.service';
@@ -12,7 +11,7 @@ type FormMode = 'add' | 'edit';
 
 @Component({
   selector: 'app-companies-list',
-  imports: [RouterLink, DatePipe, ReactiveFormsModule],
+  imports: [DatePipe, ReactiveFormsModule],
   templateUrl: './companies-list.component.html',
   styleUrl: './companies-list.component.scss',
 })

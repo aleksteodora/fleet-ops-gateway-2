@@ -1,0 +1,72 @@
+<div class="profile-page">
+  <div class="page-header">
+    <h1>My Profile</h1>
+    <p class="subtitle">View and update your personal information.</p>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state-message">Loading profile...</div>
+  }
+
+  @if (errorMessage()) {
+    <div class="state-message error">{{ errorMessage() }}</div>
+  }
+
+  @if (profile() && !isLoading()) {
+    <div class="profile-card">
+      @if (!isEditing()) {
+        <div class="profile-view">
+          <div class="profile-field">
+            <span class="label">First name</span>
+            <span class="value">{{ profile()!.firstName }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="label">Last name</span>
+            <span class="value">{{ profile()!.lastName }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="label">Email</span>
+            <span class="value">{{ profile()!.email }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="label">Role</span>
+            <span class="value">{{ profile()!.role }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="label">Company</span>
+            <span class="value">{{ profile()!.companyName ?? '-' }}</span>
+          </div>
+
+          @if (successMessage()) {
+            <div class="success-message">{{ successMessage() }}</div>
+          }
+
+          <button type="button" class="btn-primary" (click)="startEdit()">Edit profile</button>
+        </div>
+      } @else {
+        <form [formGroup]="editForm" (ngSubmit)="onSubmit()">
+          <div class="field">
+            <label for="firstName">First name</label>
+            <input id="firstName" type="text" formControlName="firstName" placeholder="First name" />
+          </div>
+
+          <div class="field">
+            <label for="lastName">Last name</label>
+            <input id="lastName" type="text" formControlName="lastName" placeholder="Last name" />
+          </div>
+
+          @if (formError()) {
+            <div class="form-error">{{ formError() }}</div>
+          }
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" [disabled]="editForm.invalid || isSubmitting()">
+              {{ isSubmitting() ? 'Saving...' : 'Save changes' }}
+            </button>
+            <button type="button" class="btn-secondary" (click)="cancelEdit()">Cancel</button>
+          </div>
+        </form>
+      }
+    </div>
+  }
+</div>
