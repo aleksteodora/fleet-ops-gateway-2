@@ -1,20 +1,14 @@
 package rs.tiacgroup.fleetopsgateway.vehiclesearch.integration;
 
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestClient;
 import rs.tiacgroup.fleetopsgateway.vehiclesearch.integration.model.VehicleData;
 
 @Slf4j
 public abstract class AbstractVehicleProviderClient implements VehicleProviderClient {
-
-    protected final RestClient restClient;
-
-    protected AbstractVehicleProviderClient(RestClient restClient) {
-        this.restClient = restClient;
-    }
 
     @Override
     public VehicleProviderResult search(String vin) {
@@ -32,6 +26,10 @@ public abstract class AbstractVehicleProviderClient implements VehicleProviderCl
 
         } catch (HttpServerErrorException | ResourceAccessException ex) {
             log.warn("{} provider unavailable for vin={}: {}", providerName, vin, ex.getMessage());
+            return new VehicleProviderResult(VehicleProviderResult.Outcome.UNAVAILABLE, null);
+
+        } catch (CallNotPermittedException ex) {
+            log.warn("{} provider circuit breaker is OPEN, skipping call for vin={}", providerName, vin);
             return new VehicleProviderResult(VehicleProviderResult.Outcome.UNAVAILABLE, null);
         }
     }
